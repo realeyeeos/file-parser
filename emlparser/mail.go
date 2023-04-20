@@ -7,9 +7,9 @@ package emlparser
 import (
 	"bufio"
 	"bytes"
-	"collector/decoder"
 	"crypto/sha1"
 	"encoding/base64"
+	"fileparser/decoder"
 	"io"
 	"net/textproto"
 	"os"

@@ -7,8 +7,8 @@ Description：解析ppt文件
 */
 import (
 	"bytes"
-	publicfun "collector/publicfunc"
 	"encoding/binary"
+	publicfun "fileparser/publicfunc"
 	"io"
 )
 

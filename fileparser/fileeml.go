@@ -6,8 +6,8 @@ Author：scl
 Description：解析eml文件
 */
 import (
-	"collector/emlparser"
 	"errors"
+	"fileparser/emlparser"
 	"io"
 	"os"
 )

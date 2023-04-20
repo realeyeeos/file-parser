@@ -8,8 +8,8 @@ Description：解析xls文件
 
 import (
 	"bytes"
-	publicfun "collector/publicfunc"
 	"encoding/binary"
+	publicfun "fileparser/publicfunc"
 	"io"
 )
 

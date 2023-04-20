@@ -7,8 +7,8 @@ Description：解析ole文件
 */
 
 import (
-	"collector/ole"
 	"errors"
+	"fileparser/ole"
 	"os"
 )
 

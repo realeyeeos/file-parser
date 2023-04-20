@@ -7,8 +7,8 @@ Description：解析txt、csv文件
 */
 import (
 	"bufio"
-	"collector/decoder"
 	"errors"
+	"fileparser/decoder"
 	"io"
 	"os"
 	"strconv"

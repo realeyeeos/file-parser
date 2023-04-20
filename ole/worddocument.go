@@ -12,7 +12,7 @@ import (
 	"errors"
 	"io"
 
-	publicfun "collector/publicfunc"
+	publicfun "fileparser/publicfunc"
 )
 
 const MaxFileNum = 3000
