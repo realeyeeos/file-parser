@@ -1,0 +1,39 @@
+Global:
+    Date: ""
+    ApiVersion: v2
+    Mode: release
+    AllowRPC: false
+    EnableRules: []
+    DisableRules: []
+    MaxLogInput: 0
+    MaxRegexRuleID: 0
+MaskRules: []
+Rules:
+    - RuleID: 0
+      InfoType: ""
+      Description: ""
+      EnName: ""
+      CnName: scl_ll
+      Level: L1
+      Detect:
+        KReg: []
+        KDict: []
+        VReg: []
+        VDict: [ll]
+        KRelation: 0
+        VRelation: 1
+        KAndVRelation: 0
+      Filter:
+        BReg: []
+        BDict: []
+        BAlgo: []
+      Verify:
+        CReg: []
+        CDict: []
+        VAlgo: []
+      Mask: ""
+      ExtInfo:
+        CategoryId: LjC9P-7h2yw__wCVhoEtJ
+        LevelId: Il1O1QNGwODeymvh_Z7uk
+        LevelItemId: WPztvwBkaKod-Nu1glMuL
+        RuleId: _PkwndjCc9HdajCM9OAjR
