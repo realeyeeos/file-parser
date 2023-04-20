@@ -15,8 +15,8 @@ import (
 	"github.com/beevik/etree"
 )
 
-//打开文件
-func GetDocxData(fileName string, callBack CallBackDataFunc) (err error) {
+//获取文件数据
+func GetDocxDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -27,6 +27,21 @@ func GetDocxData(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 	defer f.Close()
+
+	err = GetDocxData(f, callBack)
+	return
+}
+
+//获取文件数据
+func GetDocxData(f *os.File, callBack CallBackDataFunc) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
 
 	//获取文件属性
 	fi, err := f.Stat()
@@ -41,13 +56,12 @@ func GetDocxData(fileName string, callBack CallBackDataFunc) (err error) {
 	}
 
 	//处理文件数据
-	err = DealDocxFile(docx, callBack)
-
-	return err
+	err = dealDocxFile(docx, callBack)
+	return
 }
 
 //处理docx文件
-func DealDocxFile(docx *document.Document, callBack CallBackDataFunc) (err error) {
+func dealDocxFile(docx *document.Document, callBack CallBackDataFunc) (err error) {
 	//批注
 	for _, docfile := range docx.DocBase.ExtraFiles {
 		if docfile.ZipPath != "word/comments.xml" {

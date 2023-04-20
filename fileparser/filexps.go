@@ -7,7 +7,6 @@ Description：解析xps文件
 */
 import (
 	"archive/zip"
-	"bytes"
 	"encoding/xml"
 	"errors"
 	"io"
@@ -123,20 +122,42 @@ func GetFpageInfo(mapvalues map[string]*zip.File, callBack CallBackDataFunc) (er
 	return
 }
 
-//打开文件
-func GetXpsData(fileName string, callBack CallBackDataFunc) (err error) {
+//获取文件数据
+func GetXpsDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
 	}
 
-	fileData, err := os.ReadFile(fileName)
+	f, err := os.Open(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	//处理文件数据
+	err = GetXpsData(f, callBack)
+	return
+}
+
+//获取文件数据
+func GetXpsData(f *os.File, callBack CallBackDataFunc) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
+
+	fi, err := f.Stat()
 	if err != nil {
 		return
 	}
 
 	//创建一个zip的reader
-	zipReader, err := zip.NewReader(bytes.NewReader(fileData), int64(len(fileData)))
+	zipReader, err := zip.NewReader(f, fi.Size())
 	if err != nil {
 		return
 	}
@@ -154,13 +175,13 @@ func GetXpsData(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 
-	err = DealXpsFile(zipReader, callBack)
-
+	//处理文件数据
+	err = dealXpsFile(zipReader, callBack)
 	return
 }
 
 //处理xps文件
-func DealXpsFile(zipreader *zip.Reader, callBack CallBackDataFunc) (err error) {
+func dealXpsFile(zipreader *zip.Reader, callBack CallBackDataFunc) (err error) {
 	//所有文件及其指针保存到map中，方便后续查找
 	var mapValues map[string]*zip.File = make(map[string]*zip.File)
 	for _, v := range zipreader.File {

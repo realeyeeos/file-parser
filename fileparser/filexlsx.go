@@ -13,8 +13,8 @@ import (
 	"baliance.com/gooxml/spreadsheet"
 )
 
-//打开文件
-func GetXlsxData(fileName string, callBack CallBackDataFunc) (err error) {
+//获取文件数据
+func GetXlsxDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -25,22 +25,40 @@ func GetXlsxData(fileName string, callBack CallBackDataFunc) (err error) {
 	}
 	defer f.Close()
 
+	//处理文件数据
+	err = GetXlsxData(f, callBack)
+	return
+}
+
+//获取文件数据
+func GetXlsxData(f *os.File, callBack CallBackDataFunc) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
+
 	fi, err := f.Stat()
 	if err != nil {
 		return
 	}
 
+	//获取xlsx文件句柄
 	xlsx, err := spreadsheet.Read(f, fi.Size())
 	if err != nil {
 		return
 	}
-	err = DealXlsxFile(xlsx, callBack)
 
+	//处理文件数据
+	err = dealXlsxFile(xlsx, callBack)
 	return
 }
 
 //处理xlsx文件
-func DealXlsxFile(xlsx *spreadsheet.Workbook, callBack CallBackDataFunc) (err error) {
+func dealXlsxFile(xlsx *spreadsheet.Workbook, callBack CallBackDataFunc) (err error) {
 	defer xlsx.Close()
 
 	stylesheet := xlsx.StyleSheet

@@ -8,15 +8,14 @@ Description：解析pptx文件
 
 import (
 	"errors"
-	"io/fs"
 	"os"
 	"strconv"
 
 	"baliance.com/gooxml/presentation"
 )
 
-//打开文件
-func GetPptxData(fileName string, callBack CallBackDataFunc) (err error) {
+//获取文件数据
+func GetPptxDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -27,32 +26,39 @@ func GetPptxData(fileName string, callBack CallBackDataFunc) (err error) {
 	}
 	defer f.Close()
 
+	err = GetPptxData(f, callBack)
+	return
+}
+
+//获取文件数据
+func GetPptxData(f *os.File, callBack CallBackDataFunc) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
+
 	fi, err := f.Stat()
 	if err != nil {
 		return
 	}
 
+	//获取pptx文件句柄
 	pptx, err := presentation.Read(f, fi.Size())
 	if err != nil {
 		return
 	}
 
-	err = DealPptxFile(pptx, callBack)
-
+	//处理文件数据
+	err = dealPptxFile(pptx, callBack)
 	return
 }
 
-//判断是否是pptx文件，获取句柄
-func GetPptxHandle(fp *os.File, fi fs.FileInfo) (*presentation.Presentation, error) {
-	ppt, err := presentation.Read(fp, fi.Size())
-	if err != nil {
-		return nil, err
-	}
-	return ppt, nil
-}
-
 // 处理pptx文件
-func DealPptxFile(ppt *presentation.Presentation, callBack CallBackDataFunc) (err error) {
+func dealPptxFile(ppt *presentation.Presentation, callBack CallBackDataFunc) (err error) {
 	for k, slide := range ppt.Slides() {
 		str := ""
 		for _, choice := range slide.X().CSld.SpTree.Choice {

@@ -277,8 +277,8 @@ func Strtol(chardata []byte) (strbyte []byte) {
 	return strbyte
 }
 
-//打开文件
-func GetRtfData(fileName string, callBack CallBackDataFunc) (err error) {
+//获取文件数据
+func GetRtfDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -288,6 +288,22 @@ func GetRtfData(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 	defer f.Close()
+
+	//处理文件数据
+	err = GetRtfData(f, callBack)
+	return
+}
+
+//获取文件数据
+func GetRtfData(f *os.File, callBack CallBackDataFunc) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
 
 	reader := bufio.NewReader(f)
 
@@ -304,13 +320,13 @@ func GetRtfData(fileName string, callBack CallBackDataFunc) (err error) {
 
 	reader.Reset(f)
 
-	err = DealRtfFile(reader, callBack)
-
+	//处理文件数据
+	err = dealRtfFile(reader, callBack)
 	return
 }
 
 //处理rtf文件
-func DealRtfFile(reader *bufio.Reader, callBack CallBackDataFunc) (err error) {
+func dealRtfFile(reader *bufio.Reader, callBack CallBackDataFunc) (err error) {
 	var lastbyte [1]byte
 	var str string
 	var data [1]byte

@@ -17,8 +17,8 @@ import (
 	"github.com/saintfish/chardet"
 )
 
-//打开文件
-func GetTxtData(fileName string, callBack CallBackDataFunc) (err error) {
+//获取文件数据
+func GetTxtDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -28,6 +28,21 @@ func GetTxtData(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 	defer file.Close()
+
+	err = GetTxtData(file, callBack)
+	return
+}
+
+//获取文件数据
+func GetTxtData(file *os.File, callBack CallBackDataFunc) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if file == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
 
 	//读取100个字节判断文件编码
 	var data [100]byte
@@ -41,7 +56,8 @@ func GetTxtData(fileName string, callBack CallBackDataFunc) (err error) {
 			}
 			//文件小于100个字节，直接当utf8字节处理
 			if fi.Size() < 100 && fi.Size() > 0 {
-				filedata, err := os.ReadFile(fileName)
+				filedata := make([]byte, fi.Size())
+				_, err = file.Read(filedata[:])
 				if err != nil {
 					return err
 				}
@@ -51,13 +67,11 @@ func GetTxtData(fileName string, callBack CallBackDataFunc) (err error) {
 
 				return nil
 			} else {
-				err = errors.New("read 100 byte is error:" + fileName)
 				return err
 			}
 		} else {
 			return
 		}
-
 	}
 
 	//获取编码信息

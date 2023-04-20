@@ -12,8 +12,7 @@ import (
 	"os"
 )
 
-//打开文件
-func GetEmlData(fileName string, callBack CallBackDataFunc) (err error) {
+func GetEmlDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -24,13 +23,28 @@ func GetEmlData(fileName string, callBack CallBackDataFunc) (err error) {
 	}
 	defer file.Close()
 
-	_, err = file.Seek(0, io.SeekStart)
+	err = GetEmlData(file, callBack)
+	return
+}
+
+//获取文件数据
+func GetEmlData(f *os.File, callBack CallBackDataFunc) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
+
+	_, err = f.Seek(0, io.SeekStart)
 	if err != nil {
 		return
 	}
 
 	//数据
-	m, err := emlparser.Parse(file, false)
+	m, err := emlparser.Parse(f, false)
 	if err != nil {
 		return err
 	}

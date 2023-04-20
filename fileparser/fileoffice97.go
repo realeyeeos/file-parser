@@ -12,8 +12,8 @@ import (
 	"os"
 )
 
-//打开文件
-func GetOffice97Data(fileName string, callBack CallBackDataFunc) (err error) {
+//获取文件数据
+func GetOffice97DataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -24,18 +24,35 @@ func GetOffice97Data(fileName string, callBack CallBackDataFunc) (err error) {
 	}
 	defer f.Close()
 
+	err = GetOffice97Data(f, callBack)
+	return
+}
+
+//获取文件数据
+func GetOffice97Data(f *os.File, callBack CallBackDataFunc) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
+
+	//获取oke文件句柄
 	var oleInfo ole.OleInfo
 	err = oleInfo.GetHandle(f)
 	if err != nil {
 		return
 	}
 
-	err = DealOffice97File(f, &oleInfo, callBack)
+	//处理文件数据
+	err = dealOffice97File(f, &oleInfo, callBack)
 	return
 }
 
 //处理office97文件
-func DealOffice97File(fp *os.File, ole *ole.OleInfo, callBack CallBackDataFunc) (err error) {
+func dealOffice97File(fp *os.File, ole *ole.OleInfo, callBack CallBackDataFunc) (err error) {
 	err = ole.Read(fp)
 	if err != nil {
 		return
