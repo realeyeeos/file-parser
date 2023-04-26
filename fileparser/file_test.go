@@ -26,7 +26,8 @@ func TestDocx(t *testing.T) {
 func TestOffice97(t *testing.T) {
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\47304.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试doc.doc
-	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试doc.doc", CallBackData)
+	//F:\\project_git\\dsp-fileplugin\\tmpfile\\测试.ppt
+	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\excel测试.et", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -98,6 +99,22 @@ func TestTxt(t *testing.T) {
 
 func TestEml(t *testing.T) {
 	err := GetEmlDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\网上购票系统-用户支付通知.eml", CallBackData)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestHtml(t *testing.T) {
+	err := GetHtmlDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\108717.html", CallBackData)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestXml(t *testing.T) {
+	err := GetXmlDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\sheet1.xml", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return

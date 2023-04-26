@@ -8,6 +8,7 @@ Description：解析docx文件
 
 import (
 	"errors"
+	"io"
 	"os"
 	"strconv"
 
@@ -45,13 +46,16 @@ func GetDocxData(f *os.File, callBack CallBackDataFunc) (err error) {
 
 	//获取文件属性
 	fi, err := f.Stat()
-	if err != nil {
+	if err != nil || fi.Size() == 0 {
+		if err == nil {
+			err = errors.New("file size is nil")
+		}
 		return
 	}
 
 	//获取docx文件句柄
 	docx, err := document.Read(f, fi.Size())
-	if err != nil {
+	if err != nil && err != io.EOF {
 		return
 	}
 
@@ -111,7 +115,7 @@ func dealDocxFile(docx *document.Document, callBack CallBackDataFunc) (err error
 				continue
 			}
 
-			if !callBack(wt.Text(), "comment") {
+			if !callBack(wt.Text(), "批注") {
 				return nil
 			}
 		}
@@ -124,7 +128,7 @@ func dealDocxFile(docx *document.Document, callBack CallBackDataFunc) (err error
 			continue
 		}
 
-		if !callBack(bookmark.Name(), "bookmark") {
+		if !callBack(bookmark.Name(), "书签") {
 			return nil
 		}
 	}
@@ -141,7 +145,7 @@ func dealDocxFile(docx *document.Document, callBack CallBackDataFunc) (err error
 			continue
 		}
 
-		if !callBack(text, "headers") {
+		if !callBack(text, "页眉") {
 			return nil
 		}
 	}
@@ -157,7 +161,7 @@ func dealDocxFile(docx *document.Document, callBack CallBackDataFunc) (err error
 				continue
 			}
 
-			if !callBack(text, "footers") {
+			if !callBack(text, "页脚") {
 				return nil
 			}
 		}

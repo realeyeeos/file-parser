@@ -52,7 +52,10 @@ func GetPdfData(f *os.File, callBack CallBackDataFunc) (err error) {
 	}
 
 	fi, err := f.Stat()
-	if err != nil {
+	if err != nil || fi.Size() == 0 {
+		if err == nil {
+			err = errors.New("file size is nil")
+		}
 		return err
 	}
 
