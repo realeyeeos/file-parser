@@ -121,15 +121,15 @@ func GetTxtData(file *os.File, callBack CallBackDataFunc) (err error) {
 		for {
 			lineNum++
 			line, err := reader.ReadString('\n')
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
+			if err != nil && err != io.EOF {
 				continue
 			}
 
-			if !callBack(string(line), "第"+strconv.Itoa(lineNum)+"行") {
+			if len(line) > 0 && !callBack(string(line), "第"+strconv.Itoa(lineNum)+"行") {
 				return nil
+			}
+			if err == io.EOF {
+				break
 			}
 		}
 	}

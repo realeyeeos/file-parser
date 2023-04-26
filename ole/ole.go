@@ -235,7 +235,7 @@ func (ole *OleInfo) getLenTableData(object, root *Directory, bgpos, datalen uint
 		mini_sector_location := binary.LittleEndian.Uint32(root.StartSect[:])
 
 		index := uint32(0)
-		isdataempty := true
+		isDataEmpty := true
 		//实际上结构是[rootfat + 8个table（512）]
 		for limitLen > 0 {
 			//root
@@ -270,20 +270,20 @@ func (ole *OleInfo) getLenTableData(object, root *Directory, bgpos, datalen uint
 					copy(data, sector.Data[pos:])
 					limitLen -= int(ole.header.minifatsectorSize() - pos)
 				} else {
-					copy(data, sector.Data[pos:int(pos)+limitLen])
+					copy(data[int(datalen)-limitLen:], sector.Data[pos:int(pos)+limitLen])
 					limitLen = 0
 				}
-				isdataempty = false
-			}
-
-			//是否已经存放数据
-			if !isdataempty {
-				if limitLen > int(ole.header.minifatsectorSize()) {
-					copy(data, sector.Data[:])
-					limitLen -= int(ole.header.minifatsectorSize())
-				} else {
-					copy(data, sector.Data[:limitLen])
-					limitLen = 0
+				isDataEmpty = false
+			} else {
+				//是否已经存放数据
+				if !isDataEmpty && limitLen > 0 {
+					if limitLen > int(ole.header.minifatsectorSize()) {
+						copy(data, sector.Data[:])
+						limitLen -= int(ole.header.minifatsectorSize())
+					} else {
+						copy(data[int(datalen)-limitLen:], sector.Data[:limitLen])
+						limitLen = 0
+					}
 				}
 			}
 

@@ -27,21 +27,6 @@ func GetXzDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	}
 	defer f.Close()
 
-	err = GetXzData(f, callBack)
-	return
-}
-
-//获取文件数据
-func GetXzData(f *os.File, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
-		return
-	}
-
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
@@ -60,7 +45,6 @@ func GetXzData(f *os.File, callBack CallBackDataFunc) (err error) {
 	if err != nil && err != io.EOF {
 		return
 	}
-	callBack(string(data), "")
-
+	callBack(string(data), fileName)
 	return
 }

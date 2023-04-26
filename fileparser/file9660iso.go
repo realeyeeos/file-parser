@@ -49,7 +49,11 @@ func Get9660IsoData(f *os.File, callBack CallBackDataFunc) (err error) {
 
 	for {
 		fs, err := isoReader.Next()
-		if err != nil {
+		if err != nil && err != io.EOF {
+			continue
+		}
+
+		if fs.Size() == 0 {
 			if err == io.EOF {
 				break
 			}
