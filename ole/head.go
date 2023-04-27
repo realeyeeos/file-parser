@@ -11,7 +11,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
-	"os"
 )
 
 //ole复合文件标识
@@ -46,22 +45,16 @@ type Header struct {
 }
 
 //读取文件头
-func (ole *OleInfo) GetFileHeader(file *os.File) error {
-	if ole.file == nil {
-		fi, err := file.Stat()
-		if err != nil {
-			return err
-		}
-
-		ole.fi = fi
-		ole.file = file
+func (ole *OleInfo) GetFileHeader(fileReadSeeker io.ReadSeeker) error {
+	if ole.fileReadSeeker == nil {
+		ole.fileReadSeeker = fileReadSeeker
 	}
-	_, err := file.Seek(0, io.SeekStart)
+	_, err := fileReadSeeker.Seek(0, io.SeekStart)
 	if err != nil {
 		return err
 	}
 	var headerdata [512]byte
-	n, err := file.Read(headerdata[:])
+	n, err := fileReadSeeker.Read(headerdata[:])
 	if err != nil || n < 512 {
 		errnew := errors.New("head read error")
 		return errnew

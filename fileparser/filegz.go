@@ -9,6 +9,7 @@ Description：解析gz文件
 import (
 	"compress/gzip"
 	"errors"
+	"io"
 	"os"
 )
 
@@ -24,21 +25,6 @@ func GetGzDataFile(fileName string, callBack ZipCallBack) (err error) {
 		return
 	}
 	defer f.Close()
-
-	err = GetGzData(f, callBack)
-	return
-}
-
-func GetGzData(f *os.File, callBack ZipCallBack) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
-		return
-	}
-
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
@@ -47,12 +33,22 @@ func GetGzData(f *os.File, callBack ZipCallBack) (err error) {
 		return
 	}
 
-	gr, err := gzip.NewReader(f)
+	err = GetGzData(f, fi.Size(), callBack)
+	return
+}
+
+func GetGzData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err error) {
+	if callBack == nil || fileReader == nil || fileSize == 0 {
+		err = errors.New("callBack is nil or io.Reader is nil or fileSize is 0")
+		return
+	}
+
+	gr, err := gzip.NewReader(fileReader)
 	if err != nil {
 		return
 	}
 	defer gr.Close()
 	//处理压缩包里的文件
-	callBack(gr, fi.Name(), fi.Size())
+	callBack(gr, "", fileSize)
 	return
 }

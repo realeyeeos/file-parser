@@ -11,6 +11,7 @@ import (
 	"compress/bzip2"
 	"compress/gzip"
 	"errors"
+	"io"
 	"os"
 
 	"github.com/ulikunitz/xz"
@@ -34,19 +35,15 @@ func GetTarzDataFile(fileName string, fileType int, callBack ZipCallBack) (err e
 }
 
 //获取文件数据
-func GetTarzData(f *os.File, fileType int, callBack ZipCallBack) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
+func GetTarzData(fileReader io.Reader, fileType int, callBack ZipCallBack) (err error) {
+	if callBack == nil || fileReader == nil {
+		err = errors.New("callBack is nil or io.Reader is nil")
 		return
 	}
 
 	var tarread *tar.Reader
 	if fileType == 1 {
-		gr, err := gzip.NewReader(f)
+		gr, err := gzip.NewReader(fileReader)
 		if err != nil {
 			return err
 		}
@@ -55,10 +52,10 @@ func GetTarzData(f *os.File, fileType int, callBack ZipCallBack) (err error) {
 		//使用tar解析其中的tar文件
 		tarread = tar.NewReader(gr)
 	} else if fileType == 2 {
-		bz := bzip2.NewReader(f)
+		bz := bzip2.NewReader(fileReader)
 		tarread = tar.NewReader(bz)
 	} else if fileType == 3 {
-		xzReader, err := xz.NewReader(f)
+		xzReader, err := xz.NewReader(fileReader)
 		if err != nil {
 			return err
 		}

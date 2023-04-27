@@ -9,6 +9,7 @@ Description：解析xml文件
 import (
 	"encoding/xml"
 	"errors"
+	"io"
 	"os"
 )
 
@@ -30,20 +31,15 @@ func GetXmlDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 }
 
 //获取文件数据
-func GetXmlData(f *os.File, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
+func GetXmlData(fileReader io.Reader, callBack CallBackDataFunc) (err error) {
+	if callBack == nil || fileReader == nil {
+		err = errors.New("callBack is nil or io.Reader is nil")
 		return
 	}
 
-	decoder := xml.NewDecoder(f)
+	decoder := xml.NewDecoder(fileReader)
 	t, err := decoder.Token()
 	for err == nil {
-
 		switch token := t.(type) {
 		case xml.StartElement:
 			var xmlstr string

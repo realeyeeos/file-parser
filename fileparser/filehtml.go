@@ -7,6 +7,7 @@ Description：解析html文件
 */
 import (
 	"errors"
+	"io"
 	"os"
 
 	"golang.org/x/net/html"
@@ -30,17 +31,13 @@ func GetHtmlDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 }
 
 //获取文件数据
-func GetHtmlData(f *os.File, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
+func GetHtmlData(fileReader io.Reader, callBack CallBackDataFunc) (err error) {
+	if callBack == nil || fileReader == nil {
+		err = errors.New("callBack is nil or io.Reader is nil")
 		return
 	}
 
-	doc, err := html.Parse(f)
+	doc, err := html.Parse(fileReader)
 	if err != nil {
 		return
 	}

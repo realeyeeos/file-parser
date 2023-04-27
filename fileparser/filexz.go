@@ -8,6 +8,7 @@ Description：解析xz文件
 
 import (
 	"errors"
+	"io"
 	"os"
 
 	"github.com/ulikunitz/xz"
@@ -25,22 +26,6 @@ func GetXzDataFile(fileName string, callBack ZipCallBack) (err error) {
 		return
 	}
 	defer f.Close()
-
-	err = GetXzData(f, callBack)
-
-	return
-}
-
-func GetXzData(f *os.File, callBack ZipCallBack) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
-		return
-	}
-
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
@@ -48,12 +33,24 @@ func GetXzData(f *os.File, callBack ZipCallBack) (err error) {
 		}
 		return
 	}
-	xzReader, err := xz.NewReader(f)
+
+	err = GetXzData(f, fi.Size(), callBack)
+
+	return
+}
+
+func GetXzData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err error) {
+	if callBack == nil || fileReader == nil || fileSize == 0 {
+		err = errors.New("callBack is nil or io.Reader is nil or fileSize is 0")
+		return
+	}
+
+	xzReader, err := xz.NewReader(fileReader)
 	if err != nil {
 		return
 	}
 
 	//处理压缩包中的文件
-	callBack(xzReader, fi.Name(), fi.Size())
+	callBack(xzReader, "", fileSize)
 	return
 }

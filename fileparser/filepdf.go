@@ -8,6 +8,7 @@ Description：解析pdf文件
 
 import (
 	"errors"
+	"io"
 	"os"
 	"strconv"
 
@@ -30,27 +31,6 @@ func GetPdfDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 		return err
 	}
 	defer f.Close()
-
-	err = GetPdfData(f, callBack)
-	return
-}
-
-//获取文件数据
-func GetPdfData(f *os.File, callBack CallBackDataFunc) (err error) {
-	defer func() {
-		if err := recover(); err != nil { // recover 捕获错误。
-			return
-		}
-	}()
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
-		return
-	}
-
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
@@ -59,8 +39,24 @@ func GetPdfData(f *os.File, callBack CallBackDataFunc) (err error) {
 		return err
 	}
 
+	err = GetPdfData(f, fi.Size(), callBack)
+	return
+}
+
+//获取文件数据
+func GetPdfData(fileReaderAt io.ReaderAt, fileSize int64, callBack CallBackDataFunc) (err error) {
+	defer func() {
+		if err := recover(); err != nil { // recover 捕获错误。
+			return
+		}
+	}()
+	if callBack == nil || fileReaderAt == nil || fileSize == 0 {
+		err = errors.New("callBack is nil or io.ReaderAt is nil or fileSize is 0")
+		return
+	}
+
 	//获取pdf文件句柄
-	pdfReader, err := pdf.NewReader(f, fi.Size())
+	pdfReader, err := pdf.NewReader(fileReaderAt, fileSize)
 	if err != nil {
 		return
 	}

@@ -9,6 +9,7 @@ Description：解析ole文件
 import (
 	"errors"
 	"fileparser/ole"
+	"io"
 	"os"
 )
 
@@ -29,31 +30,27 @@ func GetOffice97DataFile(fileName string, callBack CallBackDataFunc) (err error)
 }
 
 //获取文件数据
-func GetOffice97Data(f *os.File, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
+func GetOffice97Data(fileReadSeeker io.ReadSeeker, callBack CallBackDataFunc) (err error) {
+	if callBack == nil || fileReadSeeker == nil {
+		err = errors.New("callBack is nil or io.ReadSeeker is nil")
 		return
 	}
 
 	//获取oke文件句柄
 	var oleInfo ole.OleInfo
-	err = oleInfo.GetHandle(f)
+	err = oleInfo.GetHandle(fileReadSeeker)
 	if err != nil {
 		return
 	}
 
 	//处理文件数据
-	err = dealOffice97File(f, &oleInfo, callBack)
+	err = dealOffice97File(fileReadSeeker, &oleInfo, callBack)
 	return
 }
 
 //处理office97文件
-func dealOffice97File(fp *os.File, ole *ole.OleInfo, callBack CallBackDataFunc) (err error) {
-	err = ole.Read(fp)
+func dealOffice97File(fileReadSeeker io.ReadSeeker, ole *ole.OleInfo, callBack CallBackDataFunc) (err error) {
+	err = ole.Read(fileReadSeeker)
 	if err != nil {
 		return
 	}

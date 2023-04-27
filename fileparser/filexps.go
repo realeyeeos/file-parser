@@ -134,23 +134,6 @@ func GetXpsDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 	defer f.Close()
-
-	//处理文件数据
-	err = GetXpsData(f, callBack)
-	return
-}
-
-//获取文件数据
-func GetXpsData(f *os.File, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
-		return
-	}
-
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
@@ -159,8 +142,20 @@ func GetXpsData(f *os.File, callBack CallBackDataFunc) (err error) {
 		return
 	}
 
+	//处理文件数据
+	err = GetXpsData(f, fi.Size(), callBack)
+	return
+}
+
+//获取文件数据
+func GetXpsData(fileReaderAt io.ReaderAt, fileSize int64, callBack CallBackDataFunc) (err error) {
+	if callBack == nil || fileReaderAt == nil || fileSize == 0 {
+		err = errors.New("callBack is nil or io.ReaderAt is nil or fileSize is 0")
+		return
+	}
+
 	//创建一个zip的reader
-	zipReader, err := zip.NewReader(f, fi.Size())
+	zipReader, err := zip.NewReader(fileReaderAt, fileSize)
 	if err != nil {
 		return
 	}

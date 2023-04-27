@@ -7,6 +7,7 @@ Description：解析xlsx文件
 */
 import (
 	"errors"
+	"io"
 	"os"
 	"strconv"
 
@@ -24,23 +25,6 @@ func GetXlsxDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 	defer f.Close()
-
-	//处理文件数据
-	err = GetXlsxData(f, callBack)
-	return
-}
-
-//获取文件数据
-func GetXlsxData(f *os.File, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
-		return
-	}
-
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
@@ -49,8 +33,20 @@ func GetXlsxData(f *os.File, callBack CallBackDataFunc) (err error) {
 		return
 	}
 
+	//处理文件数据
+	err = GetXlsxData(f, fi.Size(), callBack)
+	return
+}
+
+//获取文件数据
+func GetXlsxData(fileReaderAt io.ReaderAt, fileSize int64, callBack CallBackDataFunc) (err error) {
+	if callBack == nil || fileReaderAt == nil || fileSize == 0 {
+		err = errors.New("callBack is nil or io.ReaderAt is nil or fileSize is 0")
+		return
+	}
+
 	//获取xlsx文件句柄
-	xlsx, err := spreadsheet.Read(f, fi.Size())
+	xlsx, err := spreadsheet.Read(fileReaderAt, fileSize)
 	if err != nil {
 		return
 	}

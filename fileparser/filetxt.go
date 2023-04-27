@@ -28,36 +28,35 @@ func GetTxtDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 	defer file.Close()
+	fi, err := file.Stat()
+	if err != nil || fi.Size() == 0 {
+		if err == nil {
+			err = errors.New("file size is nil")
+		}
+		return
+	}
 
-	err = GetTxtData(file, callBack)
+	err = GetTxtData(file, fi.Size(), callBack)
 	return
 }
 
 //获取文件数据
-func GetTxtData(file *os.File, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if file == nil {
-		err = errors.New("os.File is nil")
+func GetTxtData(fileReadSeeker io.ReadSeeker, fileSize int64, callBack CallBackDataFunc) (err error) {
+	if callBack == nil || fileReadSeeker == nil || fileSize == 0 {
+		err = errors.New("callBack is nil or io.ReadSeeker is nil or fileSize is 0")
 		return
 	}
 
 	//读取100个字节判断文件编码
 	var data [100]byte
-	_, err = file.Read(data[:])
+	_, err = fileReadSeeker.Read(data[:])
 	//TODO
 	if err != nil {
 		if err == io.EOF {
-			fi, err := file.Stat()
-			if err != nil {
-				return err
-			}
 			//文件小于100个字节，直接当utf8字节处理
-			if fi.Size() < 100 && fi.Size() > 0 {
-				filedata := make([]byte, fi.Size())
-				_, err = file.Read(filedata[:])
+			if fileSize < 100 && fileSize > 0 {
+				filedata := make([]byte, fileSize)
+				_, err = fileReadSeeker.Read(filedata[:])
 				if err != nil {
 					return err
 				}
@@ -80,7 +79,7 @@ func GetTxtData(file *os.File, callBack CallBackDataFunc) (err error) {
 	if err != nil {
 		return
 	}
-	_, err = file.Seek(0, io.SeekStart)
+	_, err = fileReadSeeker.Seek(0, io.SeekStart)
 	if err != nil {
 		return
 	}
@@ -89,7 +88,7 @@ func GetTxtData(file *os.File, callBack CallBackDataFunc) (err error) {
 	if strings.Contains(charset.Charset, "GB") || strings.Contains(charset.Charset, "KOI8-R") ||
 		strings.Contains(charset.Charset, "UTF-16LE") || strings.Contains(charset.Charset, "UTF-16BE") {
 		//文件流编码解析
-		trancreader := decoder.EncodeReader(charset.Charset, file)
+		trancreader := decoder.EncodeReader(charset.Charset, fileReadSeeker)
 		if trancreader == nil {
 			err = errors.New("transreader is nil")
 			return
@@ -116,7 +115,7 @@ func GetTxtData(file *os.File, callBack CallBackDataFunc) (err error) {
 	} else /*if strings.Contains(charset.Charset, "UTF-8")*/ {
 		lineNum := 0
 		//utf8编码
-		reader := bufio.NewReader(file)
+		reader := bufio.NewReader(fileReadSeeker)
 		//行读取
 		for {
 			lineNum++

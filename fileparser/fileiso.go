@@ -98,17 +98,13 @@ func ReadUdfFile(udfReader *udf.Udf, fe *udf.FileEntry, callBack ZipCallBack) {
 }
 
 //获取文件数据
-func Read9660File(f *os.File, callBack ZipCallBack) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
+func Read9660File(fileReadSeeker io.ReadSeeker, callBack ZipCallBack) (err error) {
+	if callBack == nil || fileReadSeeker == nil {
+		err = errors.New("callBack is nil or io.ReadSeeker is nil")
 		return
 	}
 
-	isoReader, err := iso9660.NewReader(f)
+	isoReader, err := iso9660.NewReader(fileReadSeeker)
 	if err != nil {
 		return
 	}

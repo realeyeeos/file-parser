@@ -28,33 +28,28 @@ func GetDocxDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 	defer f.Close()
-
-	err = GetDocxData(f, callBack)
-	return
-}
-
-//获取文件数据
-func GetDocxData(f *os.File, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
-		return
-	}
-
 	//获取文件属性
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
-			err = errors.New("file size is nil")
+			err = errors.New("file size is 0")
 		}
 		return
 	}
 
+	err = GetDocxData(f, fi.Size(), callBack)
+	return
+}
+
+//获取文件数据
+func GetDocxData(fileReaderAt io.ReaderAt, fileSize int64, callBack CallBackDataFunc) (err error) {
+	if callBack == nil || fileReaderAt == nil || fileSize == 0 {
+		err = errors.New("callBack is nil or io.ReaderAt is nil or fileSize is 0")
+		return
+	}
+
 	//获取docx文件句柄
-	docx, err := document.Read(f, fi.Size())
+	docx, err := document.Read(fileReaderAt, fileSize)
 	if err != nil && err != io.EOF {
 		return
 	}

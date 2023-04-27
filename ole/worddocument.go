@@ -117,10 +117,15 @@ func (ole *OleInfo) getDocInfo(reader io.ReadSeeker, object, root *Directory, ca
 	// clx结构大小
 	lcbClx := binary.LittleEndian.Uint32(fibclxdata[4:])
 
-	if fcClx > uint32(ole.fi.Size()) || fcClx+lcbClx > uint32(ole.fi.Size()) {
+	if _, err = ole.fileReadSeeker.Seek(int64(fcClx+lcbClx), io.SeekStart); err != nil {
 		err = errors.New("fcclx and size is error")
 		return
 	}
+
+	// if fcClx > uint32(ole.fi.Size()) || fcClx+lcbClx > uint32(ole.fi.Size()) {
+	// 	err = errors.New("fcclx and size is error")
+	// 	return
+	// }
 
 	// 获取clx结构数据
 	clxdata, err := ole.getClxData(fcClx, lcbClx, object, root)

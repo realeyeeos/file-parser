@@ -8,6 +8,7 @@ Description：解析7z、tar、rar（4+）、zip文件
 
 import (
 	"errors"
+	"io"
 	"os"
 
 	"github.com/gen2brain/go-unarr"
@@ -31,17 +32,13 @@ func Get7zipDataFile(fileName string, callBack ZipCallBack) (err error) {
 }
 
 //获取文件数据
-func Get7zipData(f *os.File, callBack ZipCallBack) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if f == nil {
-		err = errors.New("os.File is nil")
+func Get7zipData(fileReader io.Reader, callBack ZipCallBack) (err error) {
+	if callBack == nil || fileReader == nil {
+		err = errors.New("callback is nil or io.Reader is nil")
 		return
 	}
 
-	zipreader, err := unarr.NewArchiveFromReader(f)
+	zipreader, err := unarr.NewArchiveFromReader(fileReader)
 	if err != nil {
 		return
 	}

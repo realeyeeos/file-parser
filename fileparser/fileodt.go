@@ -40,12 +40,8 @@ func GetOdtDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 
 //获取文件数据
 func GetOdtData(fileReader io.ReaderAt, fileSize int64, callBack CallBackDataFunc) (err error) {
-	if callBack == nil {
-		err = errors.New("callback is nil")
-		return
-	}
-	if fileReader == nil {
-		err = errors.New("os.File is nil")
+	if callBack == nil || fileReader == nil || fileSize == 0 {
+		err = errors.New("callBack is nil or io.ReaderAt is nil or fileSize is 0")
 		return
 	}
 

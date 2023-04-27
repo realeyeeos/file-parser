@@ -36,9 +36,9 @@ type OleInfo struct {
 	//类型
 	Type string
 	//文件句柄
-	file *os.File
+	fileReadSeeker io.ReadSeeker
 	//文件属性
-	fi os.FileInfo
+	//fi os.FileInfo
 	//fat索引
 	difatPositions []uint32
 	//minifat索引
@@ -52,15 +52,14 @@ type OleInfo struct {
 type DataCallBackFunc func(string, string) bool
 
 //判断是否是office97
-func (ole *OleInfo) GetHandle(fp *os.File) error {
+func (ole *OleInfo) GetHandle(fileReadSeeker io.ReadSeeker) error {
 	var err error
-	if fp == nil {
+	if fileReadSeeker == nil {
 		err = errors.New("fp is nil")
 		return err
 	}
-
 	//获取ole头
-	err = ole.GetFileHeader(fp)
+	err = ole.GetFileHeader(fileReadSeeker)
 	if err != nil {
 		return err
 	}
@@ -83,14 +82,14 @@ func (ole *OleInfo) OpenFile(filename string) (err error) {
 }
 
 //读取文件
-func (ole *OleInfo) Read(fp *os.File) (err error) {
-	if fp == nil {
+func (ole *OleInfo) Read(fileReadSeeker io.ReadSeeker) (err error) {
+	if fileReadSeeker == nil {
 		err = errors.New("fp is nil")
 		return
 	}
 
 	//获取ole头
-	err = ole.GetFileHeader(fp)
+	err = ole.GetFileHeader(fileReadSeeker)
 	if err != nil {
 		return
 	}
@@ -389,13 +388,13 @@ func (ole *OleInfo) calculateOffset(sectorID []byte) (n uint32) {
 //根据偏移量获取具体数据
 func (ole *OleInfo) getData(offset uint32, data *[]byte) (err error) {
 
-	_, err = ole.file.Seek(int64(offset), 0)
+	_, err = ole.fileReadSeeker.Seek(int64(offset), 0)
 	if err != nil {
 
 		return
 	}
 
-	_, err = ole.file.Read(*data)
+	_, err = ole.fileReadSeeker.Read(*data)
 
 	if err != nil {
 		return

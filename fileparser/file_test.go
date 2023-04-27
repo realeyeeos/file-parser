@@ -28,7 +28,7 @@ func TestOffice97(t *testing.T) {
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\47304.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试doc.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\测试.ppt
-	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\excel测试.et", CallBackData)
+	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\47304.doc", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -43,7 +43,7 @@ func TestPdf(t *testing.T) {
 			return
 		}
 	}()
-	err := GetPdfDataFile("C:\\Users\\lenovo\\Desktop\\预警-WA-20230120国网-001WebLogic远程代码执行漏洞（CVE-2023-21839）风险预警\\预警-WA-20230120国网-001WebLogic远程代码执行漏洞（CVE-2023-21839）风险预警.pdf", CallBackData)
+	err := GetPdfDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\火绒终端安全管理系统V2.0产品使用说明.pdf", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -53,7 +53,7 @@ func TestPdf(t *testing.T) {
 //go test -v -run ^TestPptx$ collector/file
 //测试pptx文件
 func TestPptx(t *testing.T) {
-	err := GetPptxDataFile("", CallBackData)
+	err := GetPptxDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\研发部新员工转正_宋春良.pptx", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -63,7 +63,7 @@ func TestPptx(t *testing.T) {
 //go test -v -run ^TestRtf$ collector/file
 //测试rtf文件
 func TestRtf(t *testing.T) {
-	err := GetRtfDataFile("", CallBackData)
+	err := GetRtfDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\测试.rtf", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -73,7 +73,7 @@ func TestRtf(t *testing.T) {
 //go test -v -run ^TestXlsx$ collector/file
 //测试xlsx文件
 func TestXlsx(t *testing.T) {
-	err := GetXlsxDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试elsx.xlsx", CallBackData)
+	err := GetXlsxDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试excel.xlsx", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -204,49 +204,8 @@ func ZipCallBackFun(zipReader io.Reader, fileName string, fileSize int64) {
 		return
 	}
 
-	//DealFile(zipReader, fileName)
 	data := make([]byte, fileSize)
 	zipReader.Read(data)
 
 	fmt.Println(fileName, ":", string(data))
-}
-
-func DealFile(fileReader io.Reader, fileName string) {
-	// var err error
-	// if strings.HasSuffix(fileName, ".doc") || strings.HasSuffix(fileName, ".xls") || strings.HasSuffix(fileName, ".ppt") ||
-	// 	strings.HasSuffix(fileName, ".pps") || strings.HasSuffix(fileName, ".et") || strings.HasSuffix(fileName, ".DOC") ||
-	// 	strings.HasSuffix(fileName, ".dps") || strings.HasSuffix(fileName, ".wps") {
-	// 	err = GetOffice97Data(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".docx") {
-	// 	err = GetDocxData(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".xlsx") {
-	// 	err = GetXlsxData(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".pptx") {
-	// 	err = GetPptxData(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".txt") {
-	// 	err = GetTxtData(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".rtf") {
-	// 	err = GetRtfData(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".pdf") {
-	// 	err = GetPdfData(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".html") {
-	// 	err = GetHtmlData(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".xml") {
-	// 	err = GetXmlData(fileReader, CallBackData)
-	// } else if strings.HasSuffix(fileName, ".odt") {
-	// 	err = GetOdtData(fileReader, CallBackData)
-	// 	//============================压缩包需要递归==========
-	// } else if strings.HasSuffix(fileName, ".zip") || strings.HasSuffix(fileName, ".7z") || strings.HasSuffix(fileName, ".tar") {
-	// 	err = Get7zipData(fileReader, ZipCallBackFun)
-	// } else if strings.HasSuffix(fileName, ".gz") {
-	// 	err = GetGzData(fileReader, ZipCallBackFun)
-	// } else if strings.HasSuffix(fileName, ".lzma") {
-	// 	err = GetLzmaData(fileReader, ZipCallBackFun)
-	// } else if strings.HasSuffix(fileName, ".bz2") {
-	// 	err = GetBz2Data(fileReader, ZipCallBackFun)
-	// } else if strings.HasSuffix(fileName, ".rar") {
-	// 	err = GetRarData(fileReader, ZipCallBackFun)
-	// }
-
-	//fmt.Println(err)
 }
