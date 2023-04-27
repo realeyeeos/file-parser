@@ -3,7 +3,7 @@ package fileparser
 /*
 Date：2023.04.23
 Author：scl
-Description：解析docx文件
+Description：解析xml文件
 */
 
 import (
@@ -43,17 +43,23 @@ func GetXmlData(f *os.File, callBack CallBackDataFunc) (err error) {
 	decoder := xml.NewDecoder(f)
 	t, err := decoder.Token()
 	for err == nil {
-		var xmlstr string
+
 		switch token := t.(type) {
 		case xml.StartElement:
+			var xmlstr string
 			for _, v := range token.Attr {
 				xmlstr += v.Value + " "
 			}
 
 			if len(xmlstr) != 0 {
-				callBack(xmlstr, token.Name.Local)
+				callBack(xmlstr, token.Name.Space+token.Name.Local)
+			}
+		case xml.CharData:
+			if len(token) > 0 {
+				callBack(string(token), "")
 			}
 		}
+
 		t, err = decoder.Token()
 	}
 
