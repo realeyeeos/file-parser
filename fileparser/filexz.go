@@ -8,14 +8,13 @@ Description：解析xz文件
 
 import (
 	"errors"
-	"io"
 	"os"
 
-	"github.com/ulikunitz/xz/lzma"
+	"github.com/ulikunitz/xz"
 )
 
 //获取文件数据
-func GetLzmaDataFile(fileName string, callBack CallBackDataFunc) (err error) {
+func GetXzDataFile(fileName string, callBack ZipCallBack) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -28,11 +27,11 @@ func GetLzmaDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	defer f.Close()
 
 	err = GetLzmaData(f, callBack)
+
 	return
 }
 
-//获取文件数据
-func GetLzmaData(f *os.File, callBack CallBackDataFunc) (err error) {
+func GetXzData(f *os.File, callBack ZipCallBack) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -49,19 +48,12 @@ func GetLzmaData(f *os.File, callBack CallBackDataFunc) (err error) {
 		}
 		return
 	}
-
-	lzmaReader, err := lzma.NewReader(f)
+	xzReader, err := xz.NewReader(f)
 	if err != nil {
 		return
 	}
-	data := make([]byte, fi.Size())
 
-	_, err = lzmaReader.Read(data)
-	if err != nil && err != io.EOF {
-		return
-	}
-
-	callBack(string(data), "")
-
+	//处理压缩包中的文件
+	callBack(xzReader, fi.Name(), fi.Size())
 	return
 }

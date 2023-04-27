@@ -9,12 +9,11 @@ Description：解析bz2文件
 import (
 	"compress/bzip2"
 	"errors"
-	"io"
 	"os"
 )
 
 //获取文件数据
-func GetBz2DataFile(fileName string, callBack CallBackDataFunc) (err error) {
+func GetBz2DataFile(fileName string, callBack ZipCallBack) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -26,6 +25,22 @@ func GetBz2DataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	}
 	defer f.Close()
 
+	err = GetBz2Data(f, callBack)
+
+	return
+}
+
+//获取文件数据
+func GetBz2Data(f *os.File, callBack ZipCallBack) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
+
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
@@ -33,15 +48,10 @@ func GetBz2DataFile(fileName string, callBack CallBackDataFunc) (err error) {
 		}
 		return
 	}
-
 	bz := bzip2.NewReader(f)
-	//读取数据
-	data := make([]byte, fi.Size())
-	_, err = bz.Read(data)
-	if err != nil && err != io.EOF {
-		return
-	}
-	callBack(string(data), fileName)
+
+	//处理压缩包里的文件
+	callBack(bz, fi.Name(), fi.Size())
 
 	return
 }

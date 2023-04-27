@@ -26,49 +26,51 @@ func GetOdtDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil || fi.Size() == 0 {
+		if err == nil {
+			err = errors.New("file size is nil")
+		}
+		return
+	}
 
-	err = GetOdtData(f, callBack)
+	err = GetOdtData(f, fi.Size(), callBack)
 	return
 }
 
 //获取文件数据
-func GetOdtData(f *os.File, callBack CallBackDataFunc) (err error) {
+func GetOdtData(fileReader io.ReaderAt, fileSize int64, callBack CallBackDataFunc) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
 	}
-	if f == nil {
+	if fileReader == nil {
 		err = errors.New("os.File is nil")
 		return
 	}
 
-	fi, err := f.Stat()
-	if err != nil || fi.Size() == 0 {
-		return
-	}
-
-	zipReader, err := zip.NewReader(f, fi.Size())
+	zipReader, err := zip.NewReader(fileReader, fileSize)
 	if err != nil {
 		return
 	}
 
 	//处理压缩文件，获取其中的数据文件
-	var filaReader io.Reader
+	var reader io.Reader
 	for _, v := range zipReader.File {
 		if v.Name == "content.xml" {
-			filaReader, err = v.Open()
+			reader, err = v.Open()
 			if err != nil && err != io.EOF {
 				break
 			}
 		}
 	}
 
-	if filaReader == nil {
+	if reader == nil {
 		return
 	}
 
 	//解析xml文件中的数据
-	decoder := xml.NewDecoder(filaReader)
+	decoder := xml.NewDecoder(reader)
 	t, err := decoder.Token()
 	for err == nil {
 		switch token := t.(type) {

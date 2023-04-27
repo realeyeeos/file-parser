@@ -8,14 +8,13 @@ Description：解析xz文件
 
 import (
 	"errors"
-	"io"
 	"os"
 
-	"github.com/ulikunitz/xz"
+	"github.com/ulikunitz/xz/lzma"
 )
 
 //获取文件数据
-func GetXzDataFile(fileName string, callBack CallBackDataFunc) (err error) {
+func GetLzmaDataFile(fileName string, callBack ZipCallBack) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -27,6 +26,21 @@ func GetXzDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 	}
 	defer f.Close()
 
+	err = GetLzmaData(f, callBack)
+	return
+}
+
+//获取文件数据
+func GetLzmaData(f *os.File, callBack ZipCallBack) (err error) {
+	if callBack == nil {
+		err = errors.New("callback is nil")
+		return
+	}
+	if f == nil {
+		err = errors.New("os.File is nil")
+		return
+	}
+
 	fi, err := f.Stat()
 	if err != nil || fi.Size() == 0 {
 		if err == nil {
@@ -35,16 +49,12 @@ func GetXzDataFile(fileName string, callBack CallBackDataFunc) (err error) {
 		return
 	}
 
-	xzReader, err := xz.NewReader(f)
+	lzmaReader, err := lzma.NewReader(f)
 	if err != nil {
 		return
 	}
-	//读取数据
-	data := make([]byte, fi.Size())
-	_, err = xzReader.Read(data)
-	if err != nil && err != io.EOF {
-		return
-	}
-	callBack(string(data), fileName)
+
+	callBack(lzmaReader, f.Name(), fi.Size())
+
 	return
 }

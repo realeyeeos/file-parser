@@ -8,6 +8,7 @@ Description：测试读取文件函数
 
 import (
 	"fmt"
+	"io"
 	"testing"
 )
 
@@ -97,13 +98,13 @@ func TestTxt(t *testing.T) {
 	}
 }
 
-func TestEml(t *testing.T) {
-	err := GetEmlDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\网上购票系统-用户支付通知.eml", CallBackData)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-}
+// func TestEml(t *testing.T) {
+// 	err := GetEmlDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\网上购票系统-用户支付通知.eml", CallBackData)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return
+// 	}
+// }
 
 func TestHtml(t *testing.T) {
 	err := GetHtmlDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\108717.html", CallBackData)
@@ -121,7 +122,131 @@ func TestXml(t *testing.T) {
 	}
 }
 
+func Test7zip(t *testing.T) {
+	err := Get7zipDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\压缩包.7z", ZipCallBackFun)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestBz2(t *testing.T) {
+	err := GetBz2DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\123.txt.bz2", ZipCallBackFun)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestGz(t *testing.T) {
+	err := GetGzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\456.txt.gz", ZipCallBackFun)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestIso(t *testing.T) {
+	err := GetIsoDataFile("E:\\vm\\镜像\\sc_winxp_pro_with_sp2.iso", ZipCallBackFun)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestLzma(t *testing.T) {
+	err := GetLzmaDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\123.txt.lzma", ZipCallBackFun)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestOdt(t *testing.T) {
+	err := GetOdtDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\测试ansi.odt", CallBackData)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestRar(t *testing.T) {
+	err := GetRarDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\压缩包.rar", ZipCallBackFun)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestTarz(t *testing.T) {
+	err := GetTarzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\test.tar.gz", 1, ZipCallBackFun)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+func TestXz(t *testing.T) {
+	err := GetXzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\123.txt.xz", ZipCallBackFun)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
 func CallBackData(str, position string) bool {
 	fmt.Println(position + "====" + str)
 	return true
+}
+
+func ZipCallBackFun(zipReader io.Reader, fileName string, fileSize int64) {
+	if fileSize == 0 {
+		return
+	}
+
+	DealFile(zipReader, fileName)
+	// data := make([]byte, fileSize)
+	// zipReader.Read(data)
+
+	//fmt.Println(fileName, ":")
+}
+
+func DealFile(fileReader io.Reader, fileName string) {
+	// var err error
+	// if strings.HasSuffix(fileName, ".doc") || strings.HasSuffix(fileName, ".xls") || strings.HasSuffix(fileName, ".ppt") ||
+	// 	strings.HasSuffix(fileName, ".pps") || strings.HasSuffix(fileName, ".et") || strings.HasSuffix(fileName, ".DOC") ||
+	// 	strings.HasSuffix(fileName, ".dps") || strings.HasSuffix(fileName, ".wps") {
+	// 	err = GetOffice97Data(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".docx") {
+	// 	err = GetDocxData(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".xlsx") {
+	// 	err = GetXlsxData(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".pptx") {
+	// 	err = GetPptxData(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".txt") {
+	// 	err = GetTxtData(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".rtf") {
+	// 	err = GetRtfData(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".pdf") {
+	// 	err = GetPdfData(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".html") {
+	// 	err = GetHtmlData(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".xml") {
+	// 	err = GetXmlData(fileReader, CallBackData)
+	// } else if strings.HasSuffix(fileName, ".odt") {
+	// 	err = GetOdtData(fileReader, CallBackData)
+	// 	//============================压缩包需要递归==========
+	// } else if strings.HasSuffix(fileName, ".zip") || strings.HasSuffix(fileName, ".7z") || strings.HasSuffix(fileName, ".tar") {
+	// 	err = Get7zipData(fileReader, ZipCallBackFun)
+	// } else if strings.HasSuffix(fileName, ".gz") {
+	// 	err = GetGzData(fileReader, ZipCallBackFun)
+	// } else if strings.HasSuffix(fileName, ".lzma") {
+	// 	err = GetLzmaData(fileReader, ZipCallBackFun)
+	// } else if strings.HasSuffix(fileName, ".bz2") {
+	// 	err = GetBz2Data(fileReader, ZipCallBackFun)
+	// } else if strings.HasSuffix(fileName, ".rar") {
+	// 	err = GetRarData(fileReader, ZipCallBackFun)
+	// }
+
+	//fmt.Println(err)
 }
