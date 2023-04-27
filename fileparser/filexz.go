@@ -26,7 +26,7 @@ func GetXzDataFile(fileName string, callBack ZipCallBack) (err error) {
 	}
 	defer f.Close()
 
-	err = GetLzmaData(f, callBack)
+	err = GetXzData(f, callBack)
 
 	return
 }

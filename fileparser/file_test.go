@@ -204,11 +204,11 @@ func ZipCallBackFun(zipReader io.Reader, fileName string, fileSize int64) {
 		return
 	}
 
-	DealFile(zipReader, fileName)
-	// data := make([]byte, fileSize)
-	// zipReader.Read(data)
+	//DealFile(zipReader, fileName)
+	data := make([]byte, fileSize)
+	zipReader.Read(data)
 
-	//fmt.Println(fileName, ":")
+	fmt.Println(fileName, ":", string(data))
 }
 
 func DealFile(fileReader io.Reader, fileName string) {
