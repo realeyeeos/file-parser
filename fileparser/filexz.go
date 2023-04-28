@@ -10,6 +10,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/ulikunitz/xz"
 )
@@ -34,14 +35,14 @@ func GetXzDataFile(fileName string, callBack ZipCallBack) (err error) {
 		return
 	}
 
-	err = GetXzData(f, fi.Size(), callBack)
+	err = GetXzData(f, fileName, callBack)
 
 	return
 }
 
-func GetXzData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err error) {
-	if callBack == nil || fileReader == nil || fileSize == 0 {
-		err = errors.New("callBack is nil or io.Reader is nil or fileSize is 0")
+func GetXzData(fileReader io.Reader, fileName string, callBack ZipCallBack) (err error) {
+	if callBack == nil || fileReader == nil {
+		err = errors.New("callBack is nil or io.Reader is nil")
 		return
 	}
 
@@ -51,6 +52,9 @@ func GetXzData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err 
 	}
 
 	//处理压缩包中的文件
-	callBack(xzReader, "", fileSize)
+	num := strings.LastIndex(fileName, ".")
+	fileTypeName := fileName[0:num]
+
+	callBack(xzReader, fileTypeName)
 	return
 }

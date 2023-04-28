@@ -6,6 +6,8 @@ Author：scl
 Description：解析tar.gz、tar.bz2、tar.xz文件
 */
 
+//=============TODO	可以将这三种类型分别集成到gz、bz2、xz中解析=============
+
 import (
 	"archive/tar"
 	"compress/bzip2"
@@ -13,12 +15,13 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/ulikunitz/xz"
 )
 
 //获取文件数据(1-tar.gz 2-tar.bz2 3-tar.xz)
-func GetTarzDataFile(fileName string, fileType int, callBack ZipCallBack) (err error) {
+func GetTarzDataFile(fileName string, callBack ZipCallBack) (err error) {
 	if callBack == nil {
 		err = errors.New("callback is nil")
 		return
@@ -30,19 +33,23 @@ func GetTarzDataFile(fileName string, fileType int, callBack ZipCallBack) (err e
 	}
 	defer f.Close()
 
-	err = GetTarzData(f, fileType, callBack)
+	err = GetTarzData(f, fileName, callBack)
 	return
 }
 
 //获取文件数据
-func GetTarzData(fileReader io.Reader, fileType int, callBack ZipCallBack) (err error) {
+func GetTarzData(fileReader io.Reader, fileName string, callBack ZipCallBack) (err error) {
 	if callBack == nil || fileReader == nil {
 		err = errors.New("callBack is nil or io.Reader is nil")
 		return
 	}
 
+	num := strings.LastIndex(fileName, ".")
+	fileType := fileName[num:]
+
 	var tarread *tar.Reader
-	if fileType == 1 {
+	switch fileType {
+	case "gz":
 		gr, err := gzip.NewReader(fileReader)
 		if err != nil {
 			return err
@@ -51,10 +58,10 @@ func GetTarzData(fileReader io.Reader, fileType int, callBack ZipCallBack) (err 
 		defer gr.Close()
 		//使用tar解析其中的tar文件
 		tarread = tar.NewReader(gr)
-	} else if fileType == 2 {
+	case "bz2":
 		bz := bzip2.NewReader(fileReader)
 		tarread = tar.NewReader(bz)
-	} else if fileType == 3 {
+	case "xz":
 		xzReader, err := xz.NewReader(fileReader)
 		if err != nil {
 			return err
@@ -73,7 +80,7 @@ func GetTarzData(fileReader io.Reader, fileType int, callBack ZipCallBack) (err 
 			break
 		}
 
-		callBack(tarread, trgzfile.Name, trgzfile.Size)
+		callBack(tarread, trgzfile.Name)
 	}
 
 	return

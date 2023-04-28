@@ -85,14 +85,14 @@ func ReadUdfFile(udfReader *udf.Udf, fe *udf.FileEntry, callBack ZipCallBack) {
 					//大小：j.NewReader().Size()
 					//数据：j.NewReader().Read()
 					//处理压缩包里的文件
-					callBack(j.NewReader(), j.Name(), j.Size())
+					callBack(j.NewReader(), j.Name())
 				}
 			}
 		} else {
 			//大小：j.NewReader().Size()
 			//数据：j.NewReader().Read()
 			//处理压缩包里的文件
-			callBack(v.NewReader(), v.Name(), v.Size())
+			callBack(v.NewReader(), v.Name())
 		}
 	}
 }
@@ -127,7 +127,7 @@ func Read9660File(fileReadSeeker io.ReadSeeker, callBack ZipCallBack) (err error
 		reader := fs.Sys().(io.Reader)
 
 		//处理压缩包里的文件
-		callBack(reader, fs.Name(), fs.Size())
+		callBack(reader, fs.Name())
 	}
 
 	return

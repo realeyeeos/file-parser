@@ -7,6 +7,7 @@ Description：解析7z、tar、rar（4+）、zip文件
 */
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"os"
@@ -38,25 +39,30 @@ func Get7zipData(fileReader io.Reader, callBack ZipCallBack) (err error) {
 		return
 	}
 
-	zipreader, err := unarr.NewArchiveFromReader(fileReader)
+	zipReader, err := unarr.NewArchiveFromReader(fileReader)
 	if err != nil {
 		return
 	}
-	defer zipreader.Close()
+	defer zipReader.Close()
 	//获取文件名
-	contens, err := zipreader.List()
+	contens, err := zipReader.List()
 	if err != nil {
 		return
 	}
 	//循环文件名
 	for _, v := range contens {
-		err = zipreader.EntryFor(v)
+		err = zipReader.EntryFor(v)
 		if err != nil {
 			continue
 		}
 
+		data, err := zipReader.ReadAll()
+		if err != nil && err != io.EOF {
+			continue
+		}
+
 		//处理压缩包中的文件
-		callBack(zipreader, v, int64(zipreader.Size()))
+		callBack(bytes.NewReader(data), v)
 	}
 
 	return

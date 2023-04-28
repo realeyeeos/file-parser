@@ -7,8 +7,10 @@ Description：测试读取文件函数
 */
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"strings"
 	"testing"
 )
 
@@ -28,7 +30,7 @@ func TestOffice97(t *testing.T) {
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\47304.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试doc.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\测试.ppt
-	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\47304.doc", CallBackData)
+	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\测试ansi.doc", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -123,7 +125,7 @@ func TestXml(t *testing.T) {
 }
 
 func Test7zip(t *testing.T) {
-	err := Get7zipDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\压缩包.7z", ZipCallBackFun)
+	err := Get7zipDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\txt_doc.7z", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -131,7 +133,7 @@ func Test7zip(t *testing.T) {
 }
 
 func TestBz2(t *testing.T) {
-	err := GetBz2DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\123.txt.bz2", ZipCallBackFun)
+	err := GetBz2DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\火绒终端安全管理系统V2.0产品使用说明.pdf.bz2", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -139,7 +141,7 @@ func TestBz2(t *testing.T) {
 }
 
 func TestGz(t *testing.T) {
-	err := GetGzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\456.txt.gz", ZipCallBackFun)
+	err := GetGzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\火绒终端安全管理系统V2.0产品使用说明.pdf.gz", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -171,7 +173,7 @@ func TestOdt(t *testing.T) {
 }
 
 func TestRar(t *testing.T) {
-	err := GetRarDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\压缩包.rar", ZipCallBackFun)
+	err := GetRarDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\测试ansi.rar", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -179,7 +181,7 @@ func TestRar(t *testing.T) {
 }
 
 func TestTarz(t *testing.T) {
-	err := GetTarzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\test.tar.gz", 1, ZipCallBackFun)
+	err := GetTarzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\test.tar.gz", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -187,7 +189,7 @@ func TestTarz(t *testing.T) {
 }
 
 func TestXz(t *testing.T) {
-	err := GetXzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\123.txt.xz", ZipCallBackFun)
+	err := GetXzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\测试ansi.doc.xz", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -199,13 +201,30 @@ func CallBackData(str, position string) bool {
 	return true
 }
 
-func ZipCallBackFun(zipReader io.Reader, fileName string, fileSize int64) {
-	if fileSize == 0 {
+func ZipCallBackFun(zipReader io.Reader, fileName string) {
+	var err error
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, zipReader)
+	if err != nil && err != io.EOF {
 		return
 	}
 
-	data := make([]byte, fileSize)
-	zipReader.Read(data)
+	byteReader := bytes.NewReader(buf.Bytes())
 
-	fmt.Println(fileName, ":", string(data))
+	if strings.HasSuffix(fileName, ".doc") {
+		readSeeker := io.ReadSeeker(byteReader)
+		err = GetOffice97Data(readSeeker, CallBackData)
+	} else if strings.HasSuffix(fileName, ".pdf") {
+		readerAt := io.ReaderAt(byteReader)
+		err = GetPdfData(readerAt, int64(buf.Len()), CallBackData)
+	} else if strings.HasSuffix(fileName, ".7z") || strings.HasSuffix(fileName, ".tar") || strings.HasSuffix(fileName, ".zip") {
+		err = Get7zipData(byteReader, ZipCallBackFun)
+	} else if strings.HasSuffix(fileName, ".rar") {
+		err = GetRarData(byteReader, int64(buf.Len()), ZipCallBackFun)
+	} else {
+		fmt.Println(fileName, ":", buf.String())
+	}
+	if err != nil {
+		fmt.Println(err)
+	}
 }

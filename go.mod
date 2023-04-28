@@ -20,7 +20,6 @@ require (
 	github.com/mogaika/udf v0.0.0-20171019171931-167f0ab01c73
 	github.com/nwaples/rardecode v1.1.3 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d
-	github.com/secDre4mer/go-cab v0.0.0-20220622130655-c4f91a5804c0
 	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/ulikunitz/xz v0.5.11
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect

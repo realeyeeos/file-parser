@@ -33,6 +33,9 @@ func GetRarDataFile(fileName string, callBack ZipCallBack) (err error) {
 		return
 	}
 
+	// rar := archiver.Rar{}
+	// rar.Unarchive(fileName, "C:\\Users\\lenovo\\Desktop\\123")
+
 	err = GetRarData(f, fi.Size(), callBack)
 	return
 }
@@ -62,8 +65,7 @@ func GetRarData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err
 		}
 
 		// 	//处理压缩包里的文件
-		callBack(file, file.Name(), file.Size())
-
+		callBack(file, file.Name())
 	}
 	return
 }

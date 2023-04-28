@@ -11,6 +11,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 )
 
 //获取文件数据
@@ -33,21 +34,23 @@ func GetBz2DataFile(fileName string, callBack ZipCallBack) (err error) {
 		return
 	}
 
-	err = GetBz2Data(f, fi.Size(), callBack)
+	err = GetBz2Data(f, fileName, callBack)
 	return
 }
 
 //获取文件数据
-func GetBz2Data(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err error) {
-	if callBack == nil || fileReader == nil || fileSize == 0 {
-		err = errors.New("callBack is nil or io.Reader is nil or fileSize is 0")
+func GetBz2Data(fileReader io.Reader, fileName string, callBack ZipCallBack) (err error) {
+	if callBack == nil || fileReader == nil {
+		err = errors.New("callBack is nil or io.Reader is nil ")
 		return
 	}
 
 	bz := bzip2.NewReader(fileReader)
 
 	//处理压缩包里的文件
-	callBack(bz, "", fileSize)
+	num := strings.LastIndex(fileName, ".")
+	fileTypeName := fileName[0:num]
+	callBack(bz, fileTypeName)
 
 	return
 }

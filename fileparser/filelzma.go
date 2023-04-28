@@ -40,7 +40,7 @@ func GetLzmaDataFile(fileName string, callBack ZipCallBack) (err error) {
 
 //获取文件数据
 func GetLzmaData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err error) {
-	if callBack == nil || fileReader == nil || fileSize == 0 {
+	if callBack == nil || fileReader == nil {
 		err = errors.New("callBack is nil or io.Reader is nil or fileSize is 0")
 		return
 	}
@@ -50,7 +50,7 @@ func GetLzmaData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (er
 		return
 	}
 
-	callBack(lzmaReader, "", fileSize)
+	callBack(lzmaReader, "")
 
 	return
 }

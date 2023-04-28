@@ -33,12 +33,12 @@ func GetGzDataFile(fileName string, callBack ZipCallBack) (err error) {
 		return
 	}
 
-	err = GetGzData(f, fi.Size(), callBack)
+	err = GetGzData(f, callBack)
 	return
 }
 
-func GetGzData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err error) {
-	if callBack == nil || fileReader == nil || fileSize == 0 {
+func GetGzData(fileReader io.Reader, callBack ZipCallBack) (err error) {
+	if callBack == nil || fileReader == nil {
 		err = errors.New("callBack is nil or io.Reader is nil or fileSize is 0")
 		return
 	}
@@ -49,6 +49,6 @@ func GetGzData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err 
 	}
 	defer gr.Close()
 	//处理压缩包里的文件
-	callBack(gr, "", fileSize)
+	callBack(gr, gr.Name)
 	return
 }
