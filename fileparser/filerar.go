@@ -64,6 +64,10 @@ func GetRarData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err
 			continue
 		}
 
+		if file.IsDir() {
+			continue
+		}
+
 		// 	//处理压缩包里的文件
 		callBack(file, file.Name())
 	}

@@ -125,7 +125,7 @@ func TestXml(t *testing.T) {
 }
 
 func Test7zip(t *testing.T) {
-	err := Get7zipDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\txt_doc.7z", ZipCallBackFun)
+	err := Get7zipDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\excel.7z", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -141,7 +141,7 @@ func TestBz2(t *testing.T) {
 }
 
 func TestGz(t *testing.T) {
-	err := GetGzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\火绒终端安全管理系统V2.0产品使用说明.pdf.gz", ZipCallBackFun)
+	err := GetGzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\docrar.rar.gz", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -149,7 +149,7 @@ func TestGz(t *testing.T) {
 }
 
 func TestIso(t *testing.T) {
-	err := GetIsoDataFile("E:\\vm\\镜像\\sc_winxp_pro_with_sp2.iso", ZipCallBackFun)
+	err := GetIsoDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\20230504_114724.iso", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -189,7 +189,7 @@ func TestTarz(t *testing.T) {
 }
 
 func TestXz(t *testing.T) {
-	err := GetXzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\测试ansi.doc.xz", ZipCallBackFun)
+	err := GetXzDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\测试ansi.doc.gz.xz", ZipCallBackFun)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -202,25 +202,47 @@ func CallBackData(str, position string) bool {
 }
 
 func ZipCallBackFun(zipReader io.Reader, fileName string) {
+	splits := strings.Split(fileName, ".")
+	if len(splits) == 0 {
+		return
+	}
+
+	fileType := strings.ToLower(splits[len(splits)-1])
+
 	var err error
 	var buf bytes.Buffer
+	//不使用io.copy会导致获取数据不全
 	_, err = io.Copy(&buf, zipReader)
 	if err != nil && err != io.EOF {
 		return
 	}
-
 	byteReader := bytes.NewReader(buf.Bytes())
 
-	if strings.HasSuffix(fileName, ".doc") {
+	if fileType == "doc" || fileType == "xls" || fileType == "ppt" {
 		readSeeker := io.ReadSeeker(byteReader)
 		err = GetOffice97Data(readSeeker, CallBackData)
-	} else if strings.HasSuffix(fileName, ".pdf") {
+	} else if fileType == "docx" {
+		readerAt := io.ReaderAt(byteReader)
+		err = GetDocxData(readerAt, int64(buf.Len()), CallBackData)
+	} else if fileType == "xlsx" {
+		readerAt := io.ReaderAt(byteReader)
+		err = GetXlsxData(readerAt, int64(buf.Len()), CallBackData)
+	} else if fileType == "pptx" {
+		readerAt := io.ReaderAt(byteReader)
+		err = GetPptxData(readerAt, int64(buf.Len()), CallBackData)
+	} else if fileType == "pdf" {
 		readerAt := io.ReaderAt(byteReader)
 		err = GetPdfData(readerAt, int64(buf.Len()), CallBackData)
-	} else if strings.HasSuffix(fileName, ".7z") || strings.HasSuffix(fileName, ".tar") || strings.HasSuffix(fileName, ".zip") {
+	} else if fileType == "7z" || fileType == "tar" || fileType == "zip" {
 		err = Get7zipData(byteReader, ZipCallBackFun)
-	} else if strings.HasSuffix(fileName, ".rar") {
+	} else if fileType == "rar" {
 		err = GetRarData(byteReader, int64(buf.Len()), ZipCallBackFun)
+	} else if fileType == "bz2" {
+		err = GetBz2Data(byteReader, fileName, ZipCallBackFun)
+	} else if fileType == "gz" {
+		err = GetGzData(byteReader, ZipCallBackFun)
+	} else if fileType == "xz" {
+		err = GetXzData(byteReader, fileName, ZipCallBackFun)
 	} else {
 		fmt.Println(fileName, ":", buf.String())
 	}

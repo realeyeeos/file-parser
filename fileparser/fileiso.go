@@ -47,6 +47,8 @@ func GetIsoData(f *os.File, callBack ZipCallBack) (err error) {
 	var tagData [2]byte
 	_, err = f.ReadAt(tagData[:], 2048*256)
 	if err != nil {
+		f.Seek(0, io.SeekStart)
+		Read9660File(f, callBack)
 		return
 	}
 	f.Seek(0, io.SeekStart)
