@@ -9,13 +9,14 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"encoding/base64"
-	"fileparser/decoder"
 	"io"
 	"net/textproto"
 	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/realeyeeos/file-parser/decoder"
 )
 
 var benc = base64.URLEncoding

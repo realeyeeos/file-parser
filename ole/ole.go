@@ -387,7 +387,6 @@ func (ole *OleInfo) calculateOffset(sectorID []byte) (n uint32) {
 
 //根据偏移量获取具体数据
 func (ole *OleInfo) getData(offset uint32, data *[]byte) (err error) {
-
 	_, err = ole.fileReadSeeker.Seek(int64(offset), 0)
 	if err != nil {
 

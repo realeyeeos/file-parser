@@ -12,7 +12,7 @@ import (
 	"errors"
 	"io"
 
-	publicfun "fileparser/publicfunc"
+	publicfun "github.com/realeyeeos/file-parser/publicfunc"
 )
 
 const MaxFileNum = 3000

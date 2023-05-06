@@ -8,8 +8,9 @@ Description：解析ppt文件
 import (
 	"bytes"
 	"encoding/binary"
-	publicfun "fileparser/publicfunc"
 	"io"
+
+	publicfun "github.com/realeyeeos/file-parser/publicfunc"
 )
 
 const (

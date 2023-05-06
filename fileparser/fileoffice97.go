@@ -8,9 +8,10 @@ Description：解析ole文件
 
 import (
 	"errors"
-	"fileparser/ole"
 	"io"
 	"os"
+
+	"github.com/realeyeeos/file-parser/ole"
 )
 
 //获取文件数据

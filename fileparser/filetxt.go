@@ -8,11 +8,12 @@ Description：解析txt、csv文件
 import (
 	"bufio"
 	"errors"
-	"fileparser/decoder"
 	"io"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/realeyeeos/file-parser/decoder"
 
 	"github.com/saintfish/chardet"
 )

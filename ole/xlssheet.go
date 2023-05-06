@@ -9,10 +9,11 @@ Description：解析xls中sheet数据
 import (
 	"bytes"
 	"encoding/binary"
-	publicfun "fileparser/publicfunc"
 	"io"
 	"math"
 	"strconv"
+
+	publicfun "github.com/realeyeeos/file-parser/publicfunc"
 )
 
 const (

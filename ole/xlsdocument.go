@@ -9,8 +9,9 @@ Description：解析xls文件
 import (
 	"bytes"
 	"encoding/binary"
-	publicfun "fileparser/publicfunc"
 	"io"
+
+	publicfun "github.com/realeyeeos/file-parser/publicfunc"
 )
 
 //xls结构中的几个关键值
