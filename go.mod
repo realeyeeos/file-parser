@@ -1,4 +1,4 @@
-module fileparser
+module github.com/realeyeeos/file-parser
 
 go 1.10
 
