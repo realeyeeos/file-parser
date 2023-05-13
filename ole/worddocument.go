@@ -25,7 +25,7 @@ type FIB struct {
 	Unused [2]byte
 	Lid    [2]byte
 	PnNext [2]byte
-	// A-是否是dot文件 C-是否为复杂模式	D-是否包含图片
+	// A-是否是dot文件 C-是否为复杂模式	D-是否包含图片 E(4位)
 	AE byte
 	// F-是否加密 G-存储表（0/1）
 	FM        byte
@@ -102,12 +102,7 @@ func (ole *OleInfo) getTableReader(reader io.ReadSeeker, table0 *Directory, tabl
 // 获取doc信息
 func (ole *OleInfo) getDocInfo(reader io.ReadSeeker, object, root *Directory, callBack DataCallBackFunc) (err error) {
 	// 读取FIBTable97中的fcClx、lcbClx
-	_, err = reader.Seek(32+2+28+2+88+2+264, 0)
-	if err != nil {
-		return
-	}
-	var fibclxdata [8]byte
-	_, err = reader.Read(fibclxdata[:])
+	fibclxdata, err := ole.getFcLcPosiData(reader, FCCLX)
 	if err != nil {
 		return
 	}
@@ -152,7 +147,6 @@ func (ole *OleInfo) getDocInfo(reader io.ReadSeeker, object, root *Directory, ca
 func (ole *OleInfo) getClxData(fcClx, lcbClx uint32, object, root *Directory) (clxdata []byte, err error) {
 	if lcbClx > 0 {
 		// 从table流和fcclx偏移量找到clx结构位置（即从table的data中找到clx）
-
 		clxtype, err := ole.getLenTableData(object, root, fcClx, 1)
 
 		if err != nil {
@@ -289,8 +283,11 @@ func (ole *OleInfo) getPlcPcdInfo(data []byte, lcd uint32) (acpnums []uint32, ap
 	plcpcd_reader := bytes.NewReader(data)
 	for i := uint32(0); i <= pcd_num; i++ {
 		var acp [4]byte
-		_, err = plcpcd_reader.Read(acp[:])
-		if err != nil {
+		n, err := plcpcd_reader.Read(acp[:])
+		if err != nil || n != 4 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			break
 		}
 
@@ -305,6 +302,37 @@ func (ole *OleInfo) getPlcPcdInfo(data []byte, lcd uint32) (acpnums []uint32, ap
 		}
 
 		apcds = append(apcds, pcd)
+	}
+
+	return
+}
+
+func (ole *OleInfo) getFcLcPosiData(reader io.ReadSeeker, seekSize int64) (data [8]byte, err error) {
+	//400-DggInfo, 320-SpaMom, 96-fcPlcfBteChpx, 264-fcClx
+	_, err = reader.Seek(32+2+28+2+88+2+seekSize, 0)
+	if err != nil {
+		return
+	}
+	n, err := reader.Read(data[:])
+	if err != nil || n != 8 {
+		if err == nil {
+			err = errors.New("read len is error")
+		}
+		return
+	}
+	return
+}
+
+// 获取PlcfBteChpx结构数据
+func (ole *OleInfo) getFcData(fcPlcSeek, lc uint32, object, root *Directory) (data []byte, err error) {
+	if lc == 0 {
+		return
+	}
+
+	//从table流和fc偏移量找到clx结构位置（即从table的data中找到clx）
+	data, err = ole.getLenTableData(object, root, fcPlcSeek, lc)
+	if err != nil {
+		return nil, err
 	}
 
 	return

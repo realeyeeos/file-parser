@@ -9,6 +9,7 @@ Description：解析xls文件
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"io"
 
 	publicfun "github.com/realeyeeos/file-parser/publicfunc"
@@ -50,15 +51,21 @@ func (ole *OleInfo) getXlsInfo(reader io.ReadSeeker, xls *Directory, callBack Da
 	for {
 		var rec_type, rec_len [2]byte
 		//类型
-		_, err = reader.Read(rec_type[:])
-		if err != nil {
-			return
+		n, err := reader.Read(rec_type[:])
+		if err != nil || n != 2 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
+			return err
 		}
 
 		//数据长度
-		_, err = reader.Read(rec_len[:])
-		if err != nil {
-			return
+		n, err = reader.Read(rec_len[:])
+		if err != nil || n != 2 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
+			return err
 		}
 
 		//关键值
@@ -75,15 +82,19 @@ func (ole *OleInfo) getXlsInfo(reader io.ReadSeeker, xls *Directory, callBack Da
 			continue
 		}
 		data := make([]byte, urec_len)
-		_, err = reader.Read(data[:])
-		if err != nil {
-			return
+		n, err = reader.Read(data[:])
+		if err != nil || n != int(urec_len) {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
+			return err
 		}
 
 		//开始符
 		if urec_type == XLS_BOF {
 			if urec_len < 2 {
-				return
+				err = errors.New("ureclen is short")
+				return err
 			}
 			ole.xlsInfo.xlsVersion = data[0:2]
 		} else if urec_type == XLS_SHEET {
@@ -91,7 +102,6 @@ func (ole *OleInfo) getXlsInfo(reader io.ReadSeeker, xls *Directory, callBack Da
 			ole.getSheetInfo(data)
 		} else if urec_type == XLS_CONTINUE {
 			if SSTContinue {
-
 				// 	if len(wb.sst.RgbSrc) == 0  {
 				// 		grbitOffset = 0
 				// 	} else {
@@ -137,8 +147,11 @@ func (ole *OleInfo) getSSTInfo(urectype uint16, data []byte) (ucstTotal uint32, 
 	//总共数量
 	ucstTotal = binary.LittleEndian.Uint32(cstTotal[:])
 
-	_, err = sstreader.Read(cstUnique[:])
-	if err != nil {
+	n, err := sstreader.Read(cstUnique[:])
+	if err != nil || n != 4 {
+		if err == nil {
+			err = errors.New("read len is error")
+		}
 		return
 	}
 
@@ -146,14 +159,20 @@ func (ole *OleInfo) getSSTInfo(urectype uint16, data []byte) (ucstTotal uint32, 
 	for {
 		//字符数量
 		var cchbyte [2]byte
-		_, err = sstreader.Read(cchbyte[:])
-		if err != nil {
+		n, err = sstreader.Read(cchbyte[:])
+		if err != nil || n != 2 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			return
 		}
 
 		var flags [1]byte
-		_, err = sstreader.Read(flags[:])
-		if err != nil {
+		n, err = sstreader.Read(flags[:])
+		if err != nil || n != 1 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			return
 		}
 
@@ -171,8 +190,11 @@ func (ole *OleInfo) getSSTInfo(urectype uint16, data []byte) (ucstTotal uint32, 
 
 		//每个结构保存的数据
 		stringbyte := make([]byte, stringlen)
-		_, err = sstreader.Read(stringbyte[:])
-		if err != nil {
+		n, err = sstreader.Read(stringbyte[:])
+		if err != nil || n != int(stringlen) {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			return
 		}
 
@@ -190,7 +212,6 @@ func (ole *OleInfo) getSSTInfo(urectype uint16, data []byte) (ucstTotal uint32, 
 
 		if len(str) > 0 {
 			ole.xlsInfo.rgbStrings = append(ole.xlsInfo.rgbStrings, str)
-
 		}
 	}
 }

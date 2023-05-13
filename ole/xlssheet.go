@@ -9,6 +9,7 @@ Description：解析xls中sheet数据
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"io"
 	"math"
 	"strconv"
@@ -41,8 +42,11 @@ func (ole *OleInfo) getSheetInfo(data []byte) (err error) {
 	sheetreader := bytes.NewReader(data[:])
 
 	var lbPlyPos [4]byte
-	_, err = sheetreader.Read(lbPlyPos[:])
-	if err != nil {
+	n, err := sheetreader.Read(lbPlyPos[:])
+	if err != nil || n != 4 {
+		if err == nil {
+			err = errors.New("read len is error")
+		}
 		return
 	}
 
@@ -55,14 +59,20 @@ func (ole *OleInfo) getSheetInfo(data []byte) (err error) {
 
 	//字符串数量
 	var cchbyte, code [1]byte
-	_, err = sheetreader.Read(cchbyte[:])
-	if err != nil {
+	n, err = sheetreader.Read(cchbyte[:])
+	if err != nil || n != 1 {
+		if err == nil {
+			err = errors.New("read len is error")
+		}
 		return
 	}
 
 	//0-ansi	1-unicode
-	_, err = sheetreader.Read(code[:])
-	if err != nil {
+	n, err = sheetreader.Read(code[:])
+	if err != nil || n != 1 {
+		if err == nil {
+			err = errors.New("read len is error")
+		}
 		return
 	}
 
@@ -74,8 +84,11 @@ func (ole *OleInfo) getSheetInfo(data []byte) (err error) {
 	}
 
 	sheetname_byte := make([]byte, namelen)
-	_, err = sheetreader.Read(sheetname_byte[:])
-	if err != nil {
+	n, err = sheetreader.Read(sheetname_byte[:])
+	if err != nil || n != int(namelen) {
+		if err == nil {
+			err = errors.New("read len is error")
+		}
 		return
 	}
 
@@ -108,14 +121,20 @@ func (ole *OleInfo) dealSheet(sheetReader io.ReadSeeker, sheetStruct SHEETSTRUCT
 	for {
 		var rec_type, rec_len [2]byte
 		//类型
-		_, err = sheetReader.Read(rec_type[:])
-		if err != nil {
+		n, err := sheetReader.Read(rec_type[:])
+		if err != nil || n != 2 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			return err
 		}
 
 		//数据长度
-		_, err = sheetReader.Read(rec_len[:])
-		if err != nil {
+		n, err = sheetReader.Read(rec_len[:])
+		if err != nil || n != 2 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			return err
 		}
 
@@ -139,8 +158,11 @@ func (ole *OleInfo) dealSheet(sheetReader io.ReadSeeker, sheetStruct SHEETSTRUCT
 
 		//当前流的数据
 		data := make([]byte, urec_len)
-		_, err = sheetReader.Read(data[:])
-		if err != nil {
+		n, err = sheetReader.Read(data[:])
+		if err != nil || n != int(urec_len) {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			data = nil
 			return err
 		}
@@ -198,8 +220,11 @@ func (ole *OleInfo) dealSheet(sheetReader io.ReadSeeker, sheetStruct SHEETSTRUCT
 				labledata = make([]byte, lablbif8.Cch*2)
 			}
 
-			_, err = datareader.Read(labledata)
-			if err != nil {
+			n, err = datareader.Read(labledata)
+			if err != nil || n != int(lablbif8.Cch) {
+				if err == nil {
+					err = errors.New("read len is error")
+				}
 				labledata = nil
 				data = nil
 				return err

@@ -45,6 +45,7 @@ func GetBz2Data(fileReader io.Reader, fileName string, callBack ZipCallBack) (er
 		return
 	}
 
+	//获取解析数据流
 	bz := bzip2.NewReader(fileReader)
 
 	//处理压缩包里的文件

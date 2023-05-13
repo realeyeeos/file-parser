@@ -9,19 +9,72 @@ Description：测试读取文件函数
 import (
 	"bytes"
 	"fmt"
+	"image/jpeg"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/gen2brain/go-fitz"
 )
 
 //go test -v -run ^TestDocx$ collector/file
 //测试docx文件
 func TestDocx(t *testing.T) {
-	err := GetDocxDataFile("C:\\Users\\lenovo\\Desktop\\预警-WA-20230120国网-001WebLogic远程代码执行漏洞（CVE-2023-21839）风险预警\\预警-WA-20230120国网-001WebLogic远程代码执行漏洞（CVE-2023-21839）风险预警.docx", CallBackData)
+	err := GetDocxDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\Agent组件文件命名及元数据字段规范.docx", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+}
+
+func TestScl(t *testing.T) {
+	// file, err := os.Open("C:\\Users\\lenovo\\Desktop\\123.png")
+	// if err != nil {
+	// 	return
+	// }
+	// defer file.Close()
+	// // 解码 PNG 图片文件
+	// img, err := png.Decode(file)
+	// if err != nil {
+	// 	return
+	// }
+
+	// fmt.Println(img, str)
+
+}
+
+func TestPdfPng(t *testing.T) {
+	document, err := fitz.New("F:\\project_git\\dsp-fileplugin\\tmpfile\\202304月考勤汇总公示版.pdf")
+	if err != nil {
+		return
+	}
+
+	//提取文字
+	for n := 0; n < document.NumPage(); n++ {
+		text, err := document.Text(n)
+		if err != nil || len(text) == 0 {
+			//提取图片（可以直接识别文字的也会提取出来）
+			img, err := document.Image(n)
+			if err != nil {
+				continue
+			}
+
+			var buf bytes.Buffer
+			err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: jpeg.DefaultQuality})
+			if err != nil {
+				continue
+			}
+			os.WriteFile(filepath.Join("F:\\project_git\\dsp-fileplugin\\tmpfile\\scl", fmt.Sprintf("%03d.jpg", n)), buf.Bytes(), 0666)
+
+			continue
+		}
+
+		fmt.Println(text)
+	}
+
+	return
 }
 
 //go test -v -run ^TestOffice97$ collector/file
@@ -30,7 +83,7 @@ func TestOffice97(t *testing.T) {
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\47304.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试doc.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\测试.ppt
-	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\压缩包\\测试ansi.doc", CallBackData)
+	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\scl\\office.doc", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -45,7 +98,7 @@ func TestPdf(t *testing.T) {
 			return
 		}
 	}()
-	err := GetPdfDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\火绒终端安全管理系统V2.0产品使用说明.pdf", CallBackData)
+	err := GetPdfDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\202304月考勤汇总公示版.pdf", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -75,7 +128,7 @@ func TestRtf(t *testing.T) {
 //go test -v -run ^TestXlsx$ collector/file
 //测试xlsx文件
 func TestXlsx(t *testing.T) {
-	err := GetXlsxDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试excel.xlsx", CallBackData)
+	err := GetXlsxDataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\研发部-宋春良KPI.xlsx", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -231,8 +284,7 @@ func ZipCallBackFun(zipReader io.Reader, fileName string) {
 		readerAt := io.ReaderAt(byteReader)
 		err = GetPptxData(readerAt, int64(buf.Len()), CallBackData)
 	} else if fileType == "pdf" {
-		readerAt := io.ReaderAt(byteReader)
-		err = GetPdfData(readerAt, int64(buf.Len()), CallBackData)
+		err = GetPdfData(byteReader, int64(buf.Len()), CallBackData)
 	} else if fileType == "7z" || fileType == "tar" || fileType == "zip" {
 		err = Get7zipData(byteReader, ZipCallBackFun)
 	} else if fileType == "rar" {

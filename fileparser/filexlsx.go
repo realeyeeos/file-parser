@@ -60,6 +60,17 @@ func GetXlsxData(fileReaderAt io.ReaderAt, fileSize int64, callBack CallBackData
 func dealXlsxFile(xlsx *spreadsheet.Workbook, callBack CallBackDataFunc) (err error) {
 	defer xlsx.Close()
 
+	//图片
+	for _, v := range xlsx.Images {
+		image, err := os.ReadFile(v.Path())
+		if err != nil {
+			continue
+		}
+
+		os.WriteFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\scl\\excel.jpeg", image, 0666)
+		//fmt.Println(v.Path())
+	}
+
 	stylesheet := xlsx.StyleSheet
 	if stylesheet.X() == nil || stylesheet.X().CellXfs == nil || stylesheet.X().CellXfs.Xf == nil {
 		return

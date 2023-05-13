@@ -222,8 +222,11 @@ func Isdigit(data []byte) bool {
 func NextChar(fileReader io.Reader) (bufdata []byte, lastdata [1]byte) {
 	for {
 		var data [1]byte
-		_, err := fileReader.Read(data[:])
-		if err != nil {
+		n, err := fileReader.Read(data[:])
+		if err != nil || n != 1 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			return
 		}
 
@@ -304,8 +307,11 @@ func GetRtfData(fileReader io.ReadSeeker, callBack CallBackDataFunc) (err error)
 	//reader := bufio.NewReader(f)
 
 	var rtfdata [5]byte
-	_, err = fileReader.Read(rtfdata[:])
-	if err != nil {
+	n, err := fileReader.Read(rtfdata[:])
+	if err != nil || n != 5 {
+		if err == nil {
+			err = errors.New("read len is error")
+		}
 		return err
 	}
 
@@ -332,8 +338,11 @@ func dealRtfFile(fileReader io.Reader, callBack CallBackDataFunc) (err error) {
 			data[0] = '\\'
 			lastbyte[0] = 0x00
 		} else {
-			_, err := fileReader.Read(data[:])
-			if err != nil {
+			n, err := fileReader.Read(data[:])
+			if err != nil || n != 1 {
+				if err == nil {
+					err = errors.New("read len is error")
+				}
 				break
 			}
 		}
@@ -367,8 +376,11 @@ func dealRtfFile(fileReader io.Reader, callBack CallBackDataFunc) (err error) {
 				//2个字节一个汉字
 				for count < 4 {
 					var charbyte [1]byte
-					_, err = fileReader.Read(charbyte[:])
-					if err != nil {
+					n, err := fileReader.Read(charbyte[:])
+					if err != nil || n != 1 {
+						if err == nil {
+							err = errors.New("read len is error")
+						}
 						break
 					}
 					if !Isalpha(charbyte[:]) && !Isdigit(charbyte[:]) {
@@ -390,9 +402,12 @@ func dealRtfFile(fileReader io.Reader, callBack CallBackDataFunc) (err error) {
 			//过滤fonttbl
 			case rtf_fonttbl:
 				var font_data [1]byte
-				_, err = fileReader.Read(font_data[:])
-				if err != nil {
-					return
+				n, err := fileReader.Read(font_data[:])
+				if err != nil || n != 1 {
+					if err == nil {
+						err = errors.New("read len is error")
+					}
+					return err
 				}
 
 				var isfont bool
@@ -408,9 +423,12 @@ func dealRtfFile(fileReader io.Reader, callBack CallBackDataFunc) (err error) {
 						isfont = false
 					}
 
-					_, err = fileReader.Read(font_data[:])
-					if err != nil {
-						return
+					n, err = fileReader.Read(font_data[:])
+					if err != nil || n != 1 {
+						if err == nil {
+							err = errors.New("read len is error")
+						}
+						return err
 					}
 				}
 			//过滤colortbl
@@ -418,8 +436,11 @@ func dealRtfFile(fileReader io.Reader, callBack CallBackDataFunc) (err error) {
 				var color_data [1]byte
 				//"}"
 				for color_data[0] != '}' {
-					_, err := fileReader.Read(color_data[:])
-					if err != nil {
+					n, err := fileReader.Read(color_data[:])
+					if err != nil || n != 1 {
+						if err == nil {
+							err = errors.New("read len is error")
+						}
 						break
 					}
 				}
@@ -432,8 +453,11 @@ func dealRtfFile(fileReader io.Reader, callBack CallBackDataFunc) (err error) {
 						asterisk_data[0] = '{'
 						lastbyte[0] = 0x00
 					} else {
-						_, err := fileReader.Read(asterisk_data[:])
-						if err != nil {
+						n, err := fileReader.Read(asterisk_data[:])
+						if err != nil || n != 1 {
+							if err == nil {
+								err = errors.New("read len is error")
+							}
 							break
 						}
 					}

@@ -8,6 +8,7 @@ require (
 	github.com/beevik/etree v1.1.0
 	github.com/c4milo/gotoolkit v0.0.0-20190525173301-67483a18c17a // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
+	github.com/gen2brain/go-fitz v1.22.1
 	github.com/gen2brain/go-unarr v0.1.6
 	github.com/gogf/gf v1.16.9
 	github.com/golang/snappy v0.0.4 // indirect
@@ -15,7 +16,6 @@ require (
 	github.com/hooklift/assert v0.1.0 // indirect
 	github.com/hooklift/iso9660 v1.0.0
 	github.com/kr/pretty v0.3.1 // indirect
-	github.com/ledongthuc/pdf v0.0.0-20220302134840-0c2507a12d80
 	github.com/mholt/archiver v3.0.0+incompatible
 	github.com/mogaika/udf v0.0.0-20171019171931-167f0ab01c73
 	github.com/nwaples/rardecode v1.1.3 // indirect

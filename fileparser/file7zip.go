@@ -56,6 +56,7 @@ func Get7zipData(fileReader io.Reader, callBack ZipCallBack) (err error) {
 			continue
 		}
 
+		//读取所有数据，外边读取的话会有读取不全问题
 		data, err := zipReader.ReadAll()
 		if err != nil && err != io.EOF {
 			continue

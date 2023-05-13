@@ -8,6 +8,7 @@ Description：解析ppt文件
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"io"
 
 	publicfun "github.com/realeyeeos/file-parser/publicfunc"
@@ -45,8 +46,11 @@ func (ole *OleInfo) getPptInfo(reader io.ReadSeeker, ppt *Directory, callBack Da
 		}
 
 		var buf [8]byte
-		_, err = reader.Read(buf[:])
-		if err != nil {
+		n, err := reader.Read(buf[:])
+		if err != nil || n != 8 {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
 			break
 		}
 
@@ -79,9 +83,12 @@ func (ole *OleInfo) getRecData(rec_type uint16, ppt_reader io.ReadSeeker, reclen
 	//unicode存储
 	if rec_type == RT_TEXT_CHARS_ATOM || rec_type == RT_CSTRING {
 		bufdata := make([]byte, reclen)
-		_, err = ppt_reader.Read(bufdata[:])
-		if err != nil {
-			return
+		n, err := ppt_reader.Read(bufdata[:])
+		if err != nil || n != int(reclen) {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
+			return "", err
 		}
 		textlen := reclen / 2
 		//unicode字符解析
@@ -92,15 +99,18 @@ func (ole *OleInfo) getRecData(rec_type uint16, ppt_reader io.ReadSeeker, reclen
 
 		//打印数据
 		//fmt.Println(str2)
-		return
+		return str, err
 	}
 
 	//ansi存储
 	if rec_type == RT_TEXT_BYTES_ATOM {
 		bufdata := make([]byte, reclen)
-		_, err = ppt_reader.Read(bufdata[:])
-		if err != nil {
-			return
+		n, err := ppt_reader.Read(bufdata[:])
+		if err != nil || n != int(reclen) {
+			if err == nil {
+				err = errors.New("read len is error")
+			}
+			return "", err
 		}
 
 		str = string(bufdata)

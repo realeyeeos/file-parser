@@ -15,6 +15,14 @@ import (
 	"strings"
 )
 
+//400-DggInfo, 320-SpaMom, 96-fcPlcfBteChpx, 264-fcClx
+const (
+	FCCLX         = int64(264)
+	FCDGGINFO     = int64(400)
+	FCSPAMOM      = int64(320)
+	FCPLCFBTECHPX = int64(96)
+)
+
 //文件类型
 const (
 	NONE = iota
@@ -119,10 +127,10 @@ func (ole *OleInfo) Read(fileReadSeeker io.ReadSeeker) (err error) {
 func (ole *OleInfo) GetObjectData(callBack DataCallBackFunc) (err error) {
 	filetype := NONE
 
-	var book *Directory
-	var root *Directory
-	var table0 *Directory
-	var table1 *Directory
+	var book, root *Directory
+	var dataDir *Directory
+
+	var table0, table1 *Directory
 	for _, dir := range ole.dirs {
 		fn := dir.getName()
 
@@ -160,6 +168,9 @@ func (ole *OleInfo) GetObjectData(callBack DataCallBackFunc) (err error) {
 			filetype = PPT
 		}
 
+		if fn == "Data" {
+			dataDir = dir
+		}
 	}
 
 	if book == nil {
@@ -185,6 +196,17 @@ func (ole *OleInfo) GetObjectData(callBack DataCallBackFunc) (err error) {
 		// if err != nil {
 		// 	return err
 		// }
+
+		//内联图片
+		if dataDir != nil {
+			// dataDirReader, err := ole.openObject(dataDir, root)
+			// if err != nil {
+			// 	return err
+			// }
+			// ole.getInlinePicInfo(reader, dataDirReader, table, root, callBack)
+		}
+		//浮动图片
+		//ole.getFloatingPicInfo(reader, table, root, callBack)
 
 		//获取doc数据
 		err = ole.getDocInfo(reader, table, root, callBack)
@@ -275,9 +297,9 @@ func (ole *OleInfo) getLenTableData(object, root *Directory, bgpos, datalen uint
 				isDataEmpty = false
 			} else {
 				//是否已经存放数据
-				if !isDataEmpty && limitLen > 0 {
+				if !isDataEmpty {
 					if limitLen > int(ole.header.minifatsectorSize()) {
-						copy(data, sector.Data[:])
+						copy(data[int(datalen)-limitLen:], sector.Data[:])
 						limitLen -= int(ole.header.minifatsectorSize())
 					} else {
 						copy(data[int(datalen)-limitLen:], sector.Data[:limitLen])
@@ -319,15 +341,16 @@ func (ole *OleInfo) getLenTableData(object, root *Directory, bgpos, datalen uint
 					limitLen = 0
 				}
 				isdataempty = false
-			}
-
-			//数据是否已经开始获取
-			if !isdataempty {
-				if limitLen > int(ole.header.sectorSize()) {
-					copy(data, sector.Data[:])
-					limitLen -= int(ole.header.sectorSize())
-				} else {
-					copy(data, sector.Data[:limitLen])
+			} else {
+				//数据是否已经开始获取
+				if !isdataempty {
+					if limitLen > int(ole.header.sectorSize()) {
+						copy(data[int(datalen)-limitLen:], sector.Data[:])
+						limitLen -= int(ole.header.sectorSize())
+					} else {
+						copy(data[int(datalen)-limitLen:], sector.Data[:limitLen])
+						limitLen = 0
+					}
 				}
 			}
 
@@ -394,7 +417,6 @@ func (ole *OleInfo) getData(offset uint32, data *[]byte) (err error) {
 	}
 
 	_, err = ole.fileReadSeeker.Read(*data)
-
 	if err != nil {
 		return
 	}

@@ -57,8 +57,11 @@ func GetTxtData(fileReadSeeker io.ReadSeeker, fileSize int64, callBack CallBackD
 			//文件小于100个字节，直接当utf8字节处理
 			if fileSize < 100 && fileSize > 0 {
 				filedata := make([]byte, fileSize)
-				_, err = fileReadSeeker.Read(filedata[:])
-				if err != nil {
+				n, err := fileReadSeeker.Read(filedata[:])
+				if err != nil || int64(n) != fileSize {
+					if err == nil {
+						err = errors.New("read len is error")
+					}
 					return err
 				}
 				str := string(filedata)
