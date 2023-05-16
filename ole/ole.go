@@ -128,9 +128,8 @@ func (ole *OleInfo) GetObjectData(callBack DataCallBackFunc) (err error) {
 	filetype := NONE
 
 	var book, root *Directory
-	var dataDir *Directory
-
 	var table0, table1 *Directory
+	var docmentPic, pptPic *Directory
 	for _, dir := range ole.dirs {
 		fn := dir.getName()
 
@@ -168,8 +167,12 @@ func (ole *OleInfo) GetObjectData(callBack DataCallBackFunc) (err error) {
 			filetype = PPT
 		}
 
+		//word中记录内联图片的流
 		if fn == "Data" {
-			dataDir = dir
+			docmentPic = dir
+		}
+		if fn == "Pictures" {
+			pptPic = dir
 		}
 	}
 
@@ -198,13 +201,14 @@ func (ole *OleInfo) GetObjectData(callBack DataCallBackFunc) (err error) {
 		// }
 
 		//内联图片
-		if dataDir != nil {
-			// dataDirReader, err := ole.openObject(dataDir, root)
-			// if err != nil {
-			// 	return err
+		if docmentPic != nil {
+			//TODO Pictures By Scl
+			// docmentPicReader, err := ole.openObject(docmentPic, root)
+			// if err == nil {
+			// 	ole.getInlinePicInfo(reader, docmentPicReader, table, root, callBack)
 			// }
-			// ole.getInlinePicInfo(reader, dataDirReader, table, root, callBack)
 		}
+		//TODO Pictures By Scl
 		//浮动图片
 		//ole.getFloatingPicInfo(reader, table, root, callBack)
 
@@ -215,6 +219,15 @@ func (ole *OleInfo) GetObjectData(callBack DataCallBackFunc) (err error) {
 		}
 		return nil
 	} else if filetype == PPT {
+		//获取ppt图片数据
+		if pptPic != nil {
+			//TODO Pictures By Scl
+			// pptPicReader, err := ole.openObject(pptPic, root)
+			// if err == nil {
+			// 	ole.getArtData(nil, pptPicReader, false)
+			// }
+		}
+
 		//获取ppt数据
 		err = ole.getPptInfo(reader, book, callBack)
 		if err != nil {
