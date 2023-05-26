@@ -26,12 +26,13 @@ func GetOffice97DataFile(fileName string, callBack CallBackDataFunc) (err error)
 	}
 	defer f.Close()
 
-	err = GetOffice97Data(f, callBack)
+	err = GetOffice97Data(f, 0, callBack)
 	return
 }
 
 //获取文件数据
-func GetOffice97Data(fileReadSeeker io.ReadSeeker, callBack CallBackDataFunc) (err error) {
+//fileSize 无用，为了统一格式
+func GetOffice97Data(fileReadSeeker io.ReadSeeker, fileSize int64, callBack CallBackDataFunc) (err error) {
 	if callBack == nil || fileReadSeeker == nil {
 		err = errors.New("callBack is nil or io.ReadSeeker is nil")
 		return

@@ -191,6 +191,9 @@ func (s StyleSheet) GetNumberFormat(id uint32) NumberFormat {
 	if id >= 0 && id < 50 {
 		return CreateDefaultNumberFormat(StandardFormat(id))
 	}
+	if s.x.NumFmts == nil || s.x.NumFmts.NumFmt == nil {
+		return NumberFormat{}
+	}
 	for _, nf := range s.x.NumFmts.NumFmt {
 		if nf.NumFmtIdAttr == id {
 			return NumberFormat{s.wb, nf}

@@ -83,7 +83,7 @@ func TestOffice97(t *testing.T) {
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\47304.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\Desktop\\测试doc.doc
 	//F:\\project_git\\dsp-fileplugin\\tmpfile\\测试.ppt
-	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\scl\\office.doc", CallBackData)
+	err := GetOffice97DataFile("F:\\project_git\\dsp-fileplugin\\tmpfile\\scl\\picEls.xls", CallBackData)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -254,6 +254,25 @@ func CallBackData(str, position string) bool {
 	return true
 }
 
+// type FuncCall func(io.Reader, int64, CallBackDataFunc) error
+// type FuncLenZip func(io.Reader, int64, func(io.Reader, string)) error
+// type FuncLFileNameZip func(io.Reader, string, func(io.Reader, string)) error
+
+// var CallMapFunc = map[string]FuncCall{
+// 	"rtf":  GetRtfData,
+// 	"xps":  GetXpsData,
+// 	"docx": GetDocxData,
+// 	"pptx": GetPptxData,
+// 	"xlsx": GetXlsxData,
+// 	"pdf":  GetPdfData,
+// 	"txt":  GetTxtData,
+// 	"csv":  GetTxtData,
+// 	"doc":  GetOffice97Data,
+// 	"dot":  GetOffice97Data,
+// 	"ppt":  GetOffice97Data,
+// 	"xls":  GetOffice97Data,
+// }
+
 func ZipCallBackFun(zipReader io.Reader, fileName string) {
 	splits := strings.Split(fileName, ".")
 	if len(splits) == 0 {
@@ -271,9 +290,9 @@ func ZipCallBackFun(zipReader io.Reader, fileName string) {
 	}
 	byteReader := bytes.NewReader(buf.Bytes())
 
-	if fileType == "doc" || fileType == "xls" || fileType == "ppt" {
+	if fileType == "doc" || fileType == "xls" || fileType == "ppt" || fileType == "dot" {
 		readSeeker := io.ReadSeeker(byteReader)
-		err = GetOffice97Data(readSeeker, CallBackData)
+		err = GetOffice97Data(readSeeker, int64(buf.Len()), CallBackData)
 	} else if fileType == "docx" {
 		readerAt := io.ReaderAt(byteReader)
 		err = GetDocxData(readerAt, int64(buf.Len()), CallBackData)
@@ -286,16 +305,18 @@ func ZipCallBackFun(zipReader io.Reader, fileName string) {
 	} else if fileType == "pdf" {
 		err = GetPdfData(byteReader, int64(buf.Len()), CallBackData)
 	} else if fileType == "7z" || fileType == "tar" || fileType == "zip" {
-		err = Get7zipData(byteReader, ZipCallBackFun)
+		err = Get7zipData(byteReader, int64(buf.Len()), ZipCallBackFun)
 	} else if fileType == "rar" {
 		err = GetRarData(byteReader, int64(buf.Len()), ZipCallBackFun)
+	} else if fileType == "lzma" {
+		err = GetLzmaData(byteReader, int64(buf.Len()), ZipCallBackFun)
 	} else if fileType == "bz2" {
 		err = GetBz2Data(byteReader, fileName, ZipCallBackFun)
 	} else if fileType == "gz" {
-		err = GetGzData(byteReader, ZipCallBackFun)
+		err = GetGzData(byteReader, fileName, ZipCallBackFun)
 	} else if fileType == "xz" {
 		err = GetXzData(byteReader, fileName, ZipCallBackFun)
-	} else {
+	} else if fileType == "txt" || fileType == "csv" {
 		fmt.Println(fileName, ":", buf.String())
 	}
 	if err != nil {

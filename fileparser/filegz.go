@@ -33,11 +33,12 @@ func GetGzDataFile(fileName string, callBack ZipCallBack) (err error) {
 		return
 	}
 
-	err = GetGzData(f, callBack)
+	err = GetGzData(f, "", callBack)
 	return
 }
 
-func GetGzData(fileReader io.Reader, callBack ZipCallBack) (err error) {
+//fileName 无用，为了统一格式
+func GetGzData(fileReader io.Reader, fileName string, callBack ZipCallBack) (err error) {
 	if callBack == nil || fileReader == nil {
 		err = errors.New("callBack is nil or io.Reader is nil or fileSize is 0")
 		return

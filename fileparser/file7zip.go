@@ -28,12 +28,13 @@ func Get7zipDataFile(fileName string, callBack ZipCallBack) (err error) {
 	}
 	defer f.Close()
 
-	err = Get7zipData(f, callBack)
+	err = Get7zipData(f, 0, callBack)
 	return
 }
 
 //获取文件数据
-func Get7zipData(fileReader io.Reader, callBack ZipCallBack) (err error) {
+//fileSize -无用，为了统一格式
+func Get7zipData(fileReader io.Reader, fileSize int64, callBack ZipCallBack) (err error) {
 	if callBack == nil || fileReader == nil {
 		err = errors.New("callback is nil or io.Reader is nil")
 		return

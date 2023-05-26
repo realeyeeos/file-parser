@@ -267,6 +267,9 @@ func (wb *Workbook) Validate() error {
 func (wb *Workbook) Sheets() []Sheet {
 	ret := []Sheet{}
 	for i, wks := range wb.xws {
+		if i >= len(wb.x.Sheets.Sheet) {
+			break
+		}
 		r := wb.x.Sheets.Sheet[i]
 		ret = append(ret, Sheet{wb, r, wks})
 	}
